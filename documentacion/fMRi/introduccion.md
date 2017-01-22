@@ -68,7 +68,7 @@ El pipeline de preprocesado de neuroimagen depende generalmente del investigador
 *. Smoothing
 *. Segmentation (sMRI) --> Regions Of Interest
 
-### Registration
+### Registro
 
 Usos más comunes:
 
@@ -188,9 +188,4 @@ Generalmente se elimina el fondo de la imagen para analizar los _slices_ de voxe
 # Glosario
 
 [**Voxel**](https://es.wikipedia.org/wiki/V%C3%B3xel)
-
-## TODOs
-
-- Convert DIMCO to NIfTI with nipype dimco2nifti in R
-- Generate directories structure from dataset 
-- Bias fiesl: what's?
+[**Slice**]
