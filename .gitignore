@@ -1,0 +1,7 @@
+.spyderproject/
+*.pyc
+nilearn_cache/
+.spyproject/
+*.dot
+*.dot.*
+tmp.py
