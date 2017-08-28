@@ -37,15 +37,20 @@ working_dir='datos'
 base_dir = opj(experiment_dir, working_dir)
 
 
-#set subject list
-#subject_list = ['T003','T004','T006', 'T013','T014', 'T015', 'T017', 'T018', 'T019', 'T026', 'T023', 'T024', 'T025', 'T026', 'T027', 'T028', 'T029', 'T030', 'T031', 'T032', 'T033']
-subject_list = ['T006']
+#set subject list TODO get from args
+#subject_list = ['T003','T004','T006', 'T013','T014', 'T015', 'T017', 'T018', 
+#                'T019', 'T021', 'T023', 'T024', 'T025', 'T026', 'T027', 'T028', 
+#                'T029', 'T030', 'T031', 'T032', 'T033',
+#                'T074', 'T075', 'T076', 'T077', 'T078', 'T079', 'T080', 'T081',
+#                'T082']
+
+subject_list = ['T035', 'T039', 'T040', 'T042', 'T043', 'T045', 'T046', 'T056']
 
 
 #session id list
 session_list=[1]
 
-#smoothe filters treshold
+#smoothe filters treshold TODO from args or default value 
 fwhm= [4,5]
 #fwhm= [4,5,8]
 
@@ -163,11 +168,10 @@ reg.inputs.use_histogram_matching = [True] * 2
 reg.inputs.verbose = True
 
  # combine transforms
-pickfirst = lambda x: x[0]
 merge = Node(Merge(2), iterfield=['in2'], name='mergexfm')
 
 # apply the combined transform 
-applyTransFunc = Node(ApplyTransforms(), name='applyTransFunc')
+applyTransFunc = Node(ApplyTransforms(), iterfield=['input_image', 'transforms'],name='applyTransFunc')
 applyTransFunc.inputs.input_image_type = 3
 applyTransFunc.inputs.interpolation = 'BSpline'
 applyTransFunc.inputs.invert_transform_flags = [False, False]
@@ -182,11 +186,13 @@ remove_noise = Node(FilterRegressor(filter_all=True),name='remove_noise')
 
 #delete header for noise_components.txt
 def remove_header(in_file):
+  from os.path import abspath as opa
   with open(in_file, 'r') as fin:
     data = fin.read().splitlines(True)
-  with open(in_file, 'w') as fout:
+  out_file =  'noise_components_no_header.txt'
+  with open(out_file, 'w') as fout:
     fout.writelines(data[1:])
-  return in_file
+  return opa(out_file)
     
 remove_file_header = Node(Function(input_names=["in_file"],output_names=["out_file"],function=remove_header), name='header_removal')
 
@@ -318,4 +324,4 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.dot.png'))
 
 
 #preproc.run()
-preproc.run('MultiProc', plugin_args={'n_procs': 3})
+preproc.run('MultiProc', plugin_args={'n_procs': 2})
