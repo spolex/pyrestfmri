@@ -44,8 +44,10 @@ base_dir = opj(experiment_dir, working_dir)
 #                'T074', 'T075', 'T076', 'T077', 'T078', 'T079', 'T080', 'T081',
 #                'T082']
 
-subject_list = ['T035', 'T039', 'T040', 'T042', 'T043', 'T045', 'T046', 'T056']
+#subject_list = ['T035', 'T039', 'T040', 'T042', 'T043', 'T045', 'T046', 'T056']
 
+subject_list = ['T058', 'T059', 'T060', 'T061', 'T062', 'T063', 'T064', 'T065', 'T066', 'T067', 'T068', 'T069', 'T070', 'T071', 
+'T072', 'T073']
 
 #session id list
 session_list=[1]
