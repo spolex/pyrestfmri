@@ -40,7 +40,7 @@ def bp_filter(ts, pub=0.15, plb=0.02, TR=1.94):
   #return F.fir
   return timeserie
     
-#########################PLOT FUNCTIONS######################################
+#########################PLOT AND SAVE FUNCTIONS######################################
 def plotAndSavePSD(freq,val,subj,region,path,session=0):
   fig = plt.figure()
   plt.plot(freq, val)
