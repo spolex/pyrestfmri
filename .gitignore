@@ -5,3 +5,4 @@ nilearn_cache/
 *.dot
 *.dot.*
 tmp.py
+.idea/
