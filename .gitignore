@@ -1,2 +1,8 @@
-*.html
-*.pdf
+.spyderproject/
+*.pyc
+nilearn_cache/
+.spyproject/
+*.dot
+*.dot.*
+tmp.py
+.idea/
