@@ -93,3 +93,6 @@ for i_session, session in enumerate(session_list):
     subj = subject_list[i_subj]
     plotAndSaveEntropy(subject, subj, output_dirs[i_session][i_subj],session)
 logging.info("Finishing plot and save SSE for each subject's region...")
+
+# In[]
+# TODO test permutation entropy implementation
