@@ -3,7 +3,7 @@
 # In[]:
 from utils import flatmap,create_dir
 from os import path as op
-from entropy import f_psd, ssH, f_density, plotAndSavePSD, plotAndSaveEntropy, bp_filter
+from entropy import f_psd, ssH, f_density, p_entropy, plotAndSavePSD, plotAndSaveEntropy, plotAndSavePermEntropy, bp_filter
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 import numpy as np
@@ -19,7 +19,7 @@ subject_list = ['T003', 'T004','T006','T013', 'T014', 'T015', 'T017', 'T018',
                 'T061', 'T062', 'T063', 'T064', 'T065', 'T066', 'T067', 'T068',
                 'T069', 'T070', 'T071', 'T072', 'T073', 'T074', 'T075', 'T076',
                 'T077', 'T078', 'T079', 'T080', 'T081', 'T082']
-#subject_list = ['T026']
+# subject_list = ['T003','T004']
 
 logging.debug("Subject ids: " + str(subject_list))
 
@@ -51,7 +51,7 @@ logging.debug(input_filenames)
 # Calculate PSD for each subject's region
 logging.info("Start PSD calc for each subject's regions...")
 subject_region_ts = map(lambda filename: np.genfromtxt(filename, delimiter=',').T,input_filenames)
-subject_region_ts_bandpass_fir = map(lambda region:map(bp_filter,region),subject_region_ts) 
+#subject_region_ts_bandpass_fir = map(lambda region:map(bp_filter,region),subject_region_ts)
 subject_region_psd = map(lambda region:map(f_psd,region),subject_region_ts)    
 logging.info("Finish PSD calc for each subject's regions...")
 
@@ -67,6 +67,15 @@ logging.info("Finish density function calc for each subject's regions...")
 logging.info("Start SSE calc for each subject's regions...")
 subject_region_entropy = map(lambda subject: map(lambda region:ssH(np.asarray(region)),subject),subject_region_f_density)
 logging.info("Finish SSE calc for each subject's regions...")
+np.savetxt(op.join(data_dir, "et_ssh_entropy.csv"), subject_region_entropy,delimiter=",")
+
+# In[]
+# Calculate permutation entropy for each subject's region
+logging.info("Start SSE calc for each subject's regions...")
+subject_region_permutation_entropy = map(lambda subject: map(lambda region:p_entropy(region),subject),subject_region_psd_values)
+logging.info("Finish SSE calc for each subject's regions...")
+
+np.savetxt(op.join(data_dir, "et_permutation_entropy.csv"), subject_region_permutation_entropy,delimiter=",")
 
 # In[]
 # plot and save psd freqs and values
@@ -93,6 +102,16 @@ for i_session, session in enumerate(session_list):
     subj = subject_list[i_subj]
     plotAndSaveEntropy(subject, subj, output_dirs[i_session][i_subj],session)
 logging.info("Finishing plot and save SSE for each subject's region...")
+
+logging.info("Starting plot and save PE for each subject's region...")
+for i_session, session in enumerate(session_list):
+  logging.debug("Plot and save PE for session %d ", i_session+1)
+  for i_subj,subject in enumerate(subject_region_permutation_entropy):
+    logging.debug("Plot and save PE for session %d and subject %s", i_session+1,subject_list[i_subj])
+    subj = subject_list[i_subj]
+    plotAndSavePermEntropy(subject, subj, output_dirs[i_session][i_subj],session)
+logging.info("Finishing plot and save PE for each subject's region...")
+
 
 # In[]
 # TODO test permutation entropy implementation

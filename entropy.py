@@ -55,26 +55,26 @@ def ssH(density_func):
             entropy += density*np.log(1/density)
     return entropy
 
-def p_entropy(ts, order, d):
-    #TODO functional implementation
+def p_entropy(ts, order=3, lag=3):
     """
     Calculate the Permutation Entropy permutation entropy implementation
     [1]Permutation entropy: a natural complexity measure for time series.Bandt C1, Pompe B
         https://www.ncbi.nlm.nih.gov/pubmed/12005759
     [2]http://tocsy.pik-potsdam.de/petropy.php
+    [3]http://es.mathworks.com/matlabcentral/fileexchange/37289-permutation-entropy?focused=3770660&tab=function
 
     :param ts: time series for analysis
     :param order: order of permutation
-    :param d: time delay
+    :param lag: time delay
     :return:
     """
     from itertools import permutations
-    n = len(order)
+    n = len(ts)
     permutations = np.array(list(permutations(range(order))))
     c = [0] * len(permutations)
 
-    for i in range(n - d * (order - 1)):
-        sorted_index_array = np.array(np.argsort(ts[i:i + d * order:d], kind='quicksort'))
+    for i in range(n - lag * (order - 1)):
+        sorted_index_array = np.array(np.argsort(ts[i:i + lag * order:lag], kind='quicksort'))
         for j in range(len(permutations)):
             if abs(permutations[j] - sorted_index_array).any() == 0:
                 c[j] += 1
@@ -124,4 +124,22 @@ def plotAndSaveEntropy(entropies, subj, path, session):
     plt.title('SSE for subject: '+subj)
     fig.savefig(op.join(path,"session_id_"+str(session)+"_ssentropy.png"))
     np.savetxt(op.join(path,"session_id_"+str(session)+"_ssentropy.csv"), entropies, delimiter=",")
+    plt.close()
+
+def plotAndSavePermEntropy(entropies, subj, path, session):
+    """
+    Plot and save entropy
+    :param entropies:
+    :param subj:
+    :param path:
+    :param session:
+    :return:
+    """
+    fig = plt.figure()
+    plt.plot(entropies)
+    plt.xlabel('Extracted region')
+    plt.ylabel('Permutation Entropy')
+    plt.title('PE for subject: '+subj)
+    fig.savefig(op.join(path,"session_id_"+str(session)+"_pentropy.png"))
+    np.savetxt(op.join(path,"session_id_"+str(session)+"_pentropy.csv"), entropies, delimiter=",")
     plt.close()
