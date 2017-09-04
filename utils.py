@@ -11,7 +11,7 @@ from itertools import chain, imap
 import json
 import logging
 
-def experiment_config(filename="config.json"):
+def experiment_config(filename="conf/config.json"):
     try:
         with open(filename) as config_file:
             return json.load(config_file)

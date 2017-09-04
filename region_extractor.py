@@ -10,9 +10,23 @@ import numpy as np
 from nilearn import (image, plotting)
 from nilearn.regions import RegionExtractor
 import matplotlib.pyplot as plt
+import argparse
+
+parser = argparse.ArgumentParser(description="Functional atlas based region extractor")
+parser.add_argument("config", type=str, help="Configuration file path", nargs='?', default="config.json")
+parser.add_argument("plot_connectcome", type=bool, help="Plot brain connectcome. default false", nargs='?',
+                    default=False)
+parser.add_argument("plot_components", type=bool, help="Plot region extracted for all components. default false",
+                    nargs='?', default=False)
+parser.add_argument("plot_regions", type=bool, help="""Plot (right side) same network after region extraction to show "
+                                                    that connected regions are nicely seperated. default false""",
+                    nargs='?', default=False)
+
+
+args=parser.parse_args()
 
 # get experiment configuration
-experiment = experiment_config()["experiment"]
+experiment = experiment_config(args.config)["experiment"]
 
 logging.getLogger().setLevel(experiment["log_level"])
 
@@ -21,23 +35,20 @@ subject_list = experiment["subjects_id"]
 logging.debug("Subject ids: " + str(subject_list))
 
 # set up working dir
-data_path = op.join(os.getcwd(), 'data')
-
+data_dir = experiment["files_path"]["preproc_data_dir"]
 
 #In[]:read components image from file
 
-data_dir = '/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc'
-
-# set up params with default values TODO get from nipype inputs (select subjects ids, )
-TR = 1.94
-n_regions= 48
-session_list = [1] #sessions start in 1
+TR = experiment["t_r"]
+n_regions= experiment["#regions"]
+session_list = [1] # sessions start in 1 TODO allow more than one session
 subject_list = experiment["subject_ids"]
 logging.debug("Loading subjects: "+str(subject_list))
 
-#ts_file = '_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz'
-ts_file = '_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz'
-cf_file = 'compcor/noise_components.txt'
+# set up ts file path and name from working_dir
+ts_file = experiment["files_path"]["ts_image"]
+logging.info("Timeseries files path: "+ts_file)
+cf_file = experiment["files_path"]["preproc"]["noise_components"]
 
 #set up data dirs
 subjects_pref = map(lambda subject: '_subject_id_'+(subject), subject_list)
@@ -49,8 +60,7 @@ input_dirs = map(lambda session: map(lambda subj:op.join(data_dir,subj),session)
 func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_file),session),sessions_subjects_dir))
 confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session),sessions_subjects_dir))
 
-#TODO nipype: get from regions_input_file
-components_img = image.load_img(os.path.join(data_dir,"dic_learn_resting_state_all.nii.gz"))
+components_img = image.load_img(os.path.join(data_dir, experiment["files_path"]["brain_atlas"]["components_img"]))
 hdr = components_img.header
 shape = components_img.shape
 num_comp = shape[3]
@@ -72,7 +82,6 @@ regions_index = extractor.index_
 # Visualization of region extraction results
 title = ('%d regions are extracted from %d components.'
          % (n_regions_extracted, num_comp))
-#//TODO resample image in order to do better visualization
 plotting.plot_prob_atlas(regions_extracted_img, view_type='filled_contours',
                          title=title,
                          output_file=op.join(data_dir,"canica_func_map_comp_"+str(num_comp)+"_1.png")
@@ -105,35 +114,37 @@ mean_correlations = np.mean(correlations, axis=0).reshape(n_regions_extracted,
                                                           n_regions_extracted)
 
 # In[]
-# Plot resulting connectcomes
-regions_imgs = image.iter_img(regions_extracted_img)
-coords_connectome = [plotting.find_xyz_cut_coords(img) for img in regions_imgs]
+# Plot resulting correlation matrix
 title = 'Correlation interactions between %d regions' % n_regions_extracted
-fig = plt.figure(0)
+fig = plt.figure()
 plt.imshow(mean_correlations, interpolation="nearest",
            vmax=1, vmin=-1, cmap=plt.cm.bwr)
 plt.colorbar()
 plt.title(title)
 fig.savefig(os.path.join(data_dir,"mean_correlation_matrix.png"))
-plotting.plot_connectome(mean_correlations, coords_connectome,
+
+# Plot resulting connectcomes
+if(args.plot_connectcome):
+    regions_imgs = image.iter_img(regions_extracted_img)
+    coords_connectome = [plotting.find_xyz_cut_coords(img) for img in regions_imgs]
+    plotting.plot_connectome(mean_correlations, coords_connectome,
                          edge_threshold='90%', title=title, output_file=op.join(data_dir,'plot_connectcome_all_mean.png'))
 
 # In[]:
-# Plot region extracted for all networks
-for index in range(0,num_comp):
-  img = image.index_img(components_img, index)
-  coords = plotting.find_xyz_cut_coords(img)
-  plotting.plot_stat_map(image.index_img(components_img, index),
-                         #bg_img=anat,
-                         cut_coords=coords, title='DMN Component '+str(index+1),
-                         output_file=os.path.join(data_dir,"canica_resting_state_all_"+str(index+1)+"_1.png"))
+# Plot region extracted for all components
+if(args.plot_components):
+    for index in range(0,num_comp):
+      img = image.index_img(components_img, index)
+      coords = plotting.find_xyz_cut_coords(img)
+      plotting.plot_stat_map(image.index_img(components_img, index),
+                             cut_coords=coords, title='DMN Component '+str(index+1),
+                             output_file=os.path.join(data_dir,"canica_resting_state_all_"+str(index+1)+"_1.png"))
 
 # In[]
 # Now, we plot (right side) same network after region extraction to show that connected regions are nicely seperated.
 for index in range(0,num_comp):
   regions_indices_of_map3 = np.where(np.array(regions_index) == index)
   display = plotting.plot_anat(cut_coords=coords,
-#                               output_file=os.path.join(data_dir,"canica_resting_state_nwk_all_"+str(index+1)+"_1.png"),
                                title='Regions from network '+str(index+1))
 
   # Add as an overlay all the regions of each index
