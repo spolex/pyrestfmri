@@ -23,24 +23,25 @@ from utils import experiment_config
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
-parser.add_argument("config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config.json")
-parser.add_argument("move_plot", type=bool, help="MCFLIRT: Plot translation and rotations movement and save .par files", nargs='?', default=False)
-parser.add_argument("fwhm", type=list, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
-parser.add_argument("brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
-parser.add_argument("parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=1)
+parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config.json")
+parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot translation and rotations movement and save .par files")
+parser.add_argument("-f","--fwhm", type=list, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
+parser.add_argument("-b","--brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
+parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=1)
 
 
 args = parser.parse_args()
 
 # load experiment configuration
-experiment = experiment_config()["experiment"]
+experiment = experiment_config(args.config)["experiment"]
 # set up envvironment
-logging.getLogger().setLevel(experiment["log_level"])
 config.enable_debug_mode()
 config.set('execution', 'stop_on_first_crash', 'true')
 config.set('execution', 'remove_unnecessary_outputs', 'true')
 config.set('logging', 'workflow_level', experiment["log_level"])
 config.set('logging', 'interface_level', experiment["log_level"])
+config.set('logging', 'log_to_file', True)
+config.set('logging', 'log_directory', experiment["preproc_log_dir"])
 logging.update_logging(config)
 
 # set working dirs
@@ -118,7 +119,7 @@ slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer
 mcflirt = Node(MCFLIRT(mean_vol=True, save_plots=args.move_plot), name="mcflirt")
 
 # Plot estimated motion parametersfrom realignment
-if(args.move.plot):
+if args.move_plot:
     plotter = Node(fsl.PlotMotionParams(), name="motion_correction_plots")
     plotter.inputs.in_source='fsl'
     plotter.iterables = ('plot_type',mc_plots)
@@ -281,8 +282,8 @@ preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
 if(args.move_plot):preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
 
 #set up templates to register
-preproc.inputs.infosource.Template = opj(base_dir,experiment["files_path"]["register"]["template"])
-preproc.inputs.infosource.Template_3mm = opj(base_dir,experiment["files_path"]["register"]["template_3mm"])
+preproc.inputs.infosource.Template = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template"])
+preproc.inputs.infosource.Template_3mm = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template_3mm"])
 
 # visualizamos el workfow
 

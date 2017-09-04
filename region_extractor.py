@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser(description="Functional atlas based region extractor")
-parser.add_argument("config", type=str, help="Configuration file path", nargs='?', default="config.json")
+parser.add_argument("config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
 parser.add_argument("plot_connectcome", type=bool, help="Plot brain connectcome. default false", nargs='?',
                     default=False)
 parser.add_argument("plot_components", type=bool, help="Plot region extracted for all components. default false",
@@ -21,6 +21,9 @@ parser.add_argument("plot_components", type=bool, help="Plot region extracted fo
 parser.add_argument("plot_regions", type=bool, help="""Plot (right side) same network after region extraction to show "
                                                     that connected regions are nicely seperated. default false""",
                     nargs='?', default=False)
+parser.add_argument("highpass", type=int, help="high pass filter, default none", nargs='?', default=None)
+parser.add_argument("lowpass", type=int, help="low pass filter, default none", nargs='?', default=None)
+
 
 
 args=parser.parse_args()
@@ -29,6 +32,7 @@ args=parser.parse_args()
 experiment = experiment_config(args.config)["experiment"]
 
 logging.getLogger().setLevel(experiment["log_level"])
+logging.basicConfig(filename=experiment["region_extractor_log_file"])
 
 # set up files' path
 subject_list = experiment["subjects_id"]
@@ -42,7 +46,7 @@ data_dir = experiment["files_path"]["preproc_data_dir"]
 TR = experiment["t_r"]
 n_regions= experiment["#regions"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
-subject_list = experiment["subject_ids"]
+subject_list = experiment["subjects_id"]
 logging.debug("Loading subjects: "+str(subject_list))
 
 # set up ts file path and name from working_dir

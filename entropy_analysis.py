@@ -6,21 +6,24 @@ from os import path as op
 import numpy as np
 from entropy import f_psd, ssH, f_density, p_entropy, plotAndSavePSD, plotAndSaveEntropy, plotAndSavePermEntropy
 import logging
+from logging import handlers
 import argparse
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Process Shannon entropy and Permutation entropy")
-parser.add_argument("config", type=str, help="Configuration file path", nargs='?', default="config.json")
-parser.add_argument("psd_save", type=bool, help="Save calculated PSD for each subject's regions in individual file", nargs='?', default=False)
-parser.add_argument("ssh_save", type=bool, help="Save calculated SSH for each subject's regions in individual file", nargs='?', default=False)
-parser.add_argument("pe_save", type=bool, help="Save calculated SSH for each subject's regions in individual file", nargs='?', default=False)
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="config.json")
+parser.add_argument("-p","--psd_save", action="store_true", help="Save calculated PSD for each subject's regions in individual file, 1 activate")
+parser.add_argument("-s","--ssh_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
+parser.add_argument("-e","--pe_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
 args = parser.parse_args()
 
 # get experiment configuration
 experiment = experiment_config()["experiment"]
 
-# set up envvironment
+# set up logging envvironment
 logging.getLogger().setLevel(experiment["log_level"])
+logging.basicConfig(filename=experiment["entropy_log_file"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
+
 
 # set up working dirs
 data_dir = experiment["files_path"]["preproc_data_dir"]
@@ -76,8 +79,8 @@ subject_region_psd_values = map(lambda subject: map(lambda region:region[1],subj
 subject_region_f_density = map(lambda subject: map(lambda region:f_density(region),subject),subject_region_psd_values)
 logging.info("Finish density function calc for each subject's regions...")
 #save results into file
-np.savetxt(op.join(data_dir, "et_psd.csv"), np.column_stack((subject_list,subject_region_psd_values)),
-           delimiter=",", fmt="%s", header=header, comments='')
+#np.savetxt(op.join(data_dir, "et_psd.csv"), np.column_stack((subject_list,subject_region_psd_values)),
+#           delimiter=",", fmt="%s", header=header, comments='')
 
 # In[]
 # Calculate entropy for each subject's region
@@ -90,16 +93,16 @@ np.savetxt(op.join(data_dir, "et_ssh_entropy.csv"), np.column_stack((subject_lis
 
 # In[]
 # Calculate permutation entropy for each subject's region
-logging.info("Start SSE calc for each subject's regions...")
+logging.info("Start PE calc for each subject's regions...")
 subject_region_permutation_entropy = map(lambda subject: map(lambda region:p_entropy(region),subject),subject_region_psd_values)
-logging.info("Finish SSE calc for each subject's regions...")
+logging.info("Finish PE calc for each subject's regions...")
 #save results into file
 np.savetxt(op.join(data_dir, "et_permutation_entropy.csv"), np.column_stack((subject_list,subject_region_permutation_entropy)),
             delimiter=",", fmt="%s", header=header, comments='')
 
 # In[]
 # plot and save psd freqs and values
-if(args.psd_save):
+if args.psd_save:
     logging.info("Starting plot and save PSD freqs and values for each subject's region...")
     for i_session, session in enumerate(session_list):
       logging.debug("Plot and save PSD for session %d ", i_session+1)
@@ -115,7 +118,7 @@ if(args.psd_save):
 
 # In[]
 # plot ans save networks' entropies for each subject
-if(args.ssh_save):
+if args.ssh_save:
     logging.info("Starting plot and save SSE for each subject's region...")
     for i_session, session in enumerate(session_list):
       logging.debug("Plot and save SSE for session %d ", i_session+1)
@@ -125,7 +128,7 @@ if(args.ssh_save):
         plotAndSaveEntropy(subject, subj, output_dirs[i_session][i_subj],session)
     logging.info("Finishing plot and save SSE for each subject's region...")
 
-if(args.pe_save):
+if args.pe_save:
     logging.info("Starting plot and save PE for each subject's region...")
     for i_session, session in enumerate(session_list):
       logging.debug("Plot and save PE for session %d ", i_session+1)
@@ -134,3 +137,5 @@ if(args.pe_save):
         subj = subject_list[i_subj]
         plotAndSavePermEntropy(subject, subj, output_dirs[i_session][i_subj],session)
     logging.info("Finishing plot and save PE for each subject's region...")
+
+logging.info("Finish entropy analysis ;-)")

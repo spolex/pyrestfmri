@@ -3,6 +3,10 @@
   "experiment": {
     "_comment":"Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths",
     "log_level": "DEBUG",
+    "region_extractor_log_file":"log/region_extractor.log",
+    "brain_atlas_extractor_log_file":"log/brain_atlas_extractor.log",
+    "preproc_log_dir":"log",
+    "entropy_log_file":"log/entropy_log.log",
     "t_r":1.94,
     "#regions":48,
     "subjects_id": ["T003", "T004", "T006", "T013", "T014", "T015", "T017", "T018", "T019", "T021", "T023", "T024", "T025",
