@@ -1,0 +1,39 @@
+{
+  "_comment":"Configuration file must be contain all parameters and file paths for the experiment",
+  "experiment": {
+    "_comment":"Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths",
+    "log_level": "DEBUG",
+    "region_extractor_log_file":"log/region_extractor_dev.log",
+    "brain_atlas_extractor_log_file":"log/brain_atlas_extractor_dev.log",
+    "preproc_log_dir":"log",
+    "entropy_log_file":"log/entropy_log_dev.log",
+    "t_r":1.94,
+    "#regions":48,
+    "subjects_id": ["T003", "T004"],
+    "files_path":{
+      "_comment":"",
+      "root":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM",
+      "preproc_data_dir":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/test/datos/preproc",
+      "ts_file":"_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz_extracted_ts.csv",
+      "ts_image":"_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz",
+      "preproc":{
+                  "_comment":"",
+	              "working_dir":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/test/datos",
+                  "output":"preproc",
+                  "register":{
+                    "_comment":"",
+                    "template":"templates/MNI152_T1_1mm_brain.nii.gz",
+                    "template_3mm":"templates/MNI152_T1_3mm_brain.nii.gz"
+                  },
+                  "noise_components":"compcor/noise_components.txt"
+      },
+      "entropy":{
+                  "_comment": "",
+      		      "outdir":"entropy"
+      },
+      "brain_atlas":{
+                  "components_img":"dic_learn_resting_state_all.nii.gz"
+      }
+    }
+  }
+}
