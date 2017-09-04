@@ -1,8 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Sun Aug  6 19:52:35 2017
-
 @author: spolex
 """
 
@@ -19,54 +17,52 @@ from nipype.interfaces.io import SelectFiles, DataSink
 from nipype.pipeline.engine import Workflow, Node
 from nipype.interfaces.utility import Function,IdentityInterface, Merge
 from nipype.interfaces.ants import ApplyTransforms
-
-
+import argparse
 from nipype import config, logging
+from utils import experiment_config
+
+# set up argparser
+parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
+parser.add_argument("config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config.json")
+parser.add_argument("move_plots", type=bool, help="MCFLIRT: Plot translation and rotations movement", nargs='?', default=False)
+parser.add_argument("fwhm", type=list, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
+parser.add_argument("brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
+
+args = parser.parse_args()
+
+# load experiment configuration
+experiment = experiment_config()["experiment"]
+# set up envvironment
+logging.getLogger().setLevel(experiment["log_level"])
 config.enable_debug_mode()
-cfg = dict(execution={"crashfile_format": "plain text"})
-config.update_config(cfg)
+config.set('execution', 'stop_on_first_crash', 'true')
+config.set('execution', 'remove_unnecessary_outputs', 'true')
+config.set('logging', 'workflow_level', experiment["log_level"])
+config.set('logging', 'interface_level', experiment["log_level"])
 logging.update_logging(config)
 
-#set up params
-run = [1]
-
-#set working dirs
-experiment_dir = '/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM'
-output_dir='output'
-working_dir='datos'
-base_dir = opj(experiment_dir, working_dir)
+# set working dirs
+experiment_dir = experiment["files_path"]["root"]
+base_dir = experiment["files_path"]["preproc"]["working_dir"]
+output_dir = experiment["files_path"]["preproc"]["output"]
 
 
-#set subject list TODO get from args
-#subject_list = ['T003','T004','T006', 'T013','T014', 'T015', 'T017', 'T018', 
-#                'T019', 'T021', 'T023', 'T024', 'T025', 'T026', 'T027', 'T028', 
-#                'T029', 'T030', 'T031', 'T032', 'T033',
-#                'T074', 'T075', 'T076', 'T077', 'T078', 'T079', 'T080', 'T081',
-#                'T082']
+subject_list=experiment["subjects_id"]
 
-#subject_list = ['T035', 'T039', 'T040', 'T042', 'T043', 'T045', 'T046', 'T056']
+# session id list
+session_list=[1]#TODO allow more than one session
 
-subject_list = ['T058', 'T059', 'T060', 'T061', 'T062', 'T063', 'T064', 'T065', 'T066', 'T067', 'T068', 'T069', 'T070', 'T071', 
-'T072', 'T073']
-
-#session id list
-session_list=[1]
-
-#smoothe filters treshold TODO from args or default value 
-fwhm= [4,5]
-#fwhm= [4,5,8]
-
-#transforms
-t_in = ['in1','in2']
+# smoothe filters threshold
+fwhm = args.fwhm or [5]
 
 #treshold
-brightness_threshold = 1000.0
+brightness_threshold = args.brightness_threshold or 1000.0
 
 # time repetition
-TR = 1.94
+TR = experiment["t_r"]
 
 # plots
-mc_plots=['rotations','translations']
+mc_plots=['rotations','translations'] if args.move_plot else None
 
 ## Configuration
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
@@ -83,9 +79,7 @@ bet.inputs.reduce_bias = True
 
 
 # Slice Timing correction
-slice_timing_correction = Node(SliceTimer(
-                       time_repetition=1.94,
-                       output_type='NIFTI_GZ'),
+slice_timing_correction = Node(SliceTimer(time_repetition=TR, output_type='NIFTI_GZ'),
                name="slice_timer")
 
 # MCFLIRT - motion correction
@@ -227,14 +221,10 @@ func_file = opj('{subject_id}', 'f1.nii.gz')
 templates = {'anat': anat_file,
              'func': func_file}
 
-selectfiles = Node(SelectFiles(templates,
-                               base_directory=base_dir),
-                   name="selectfiles")
+selectfiles = Node(SelectFiles(templates,base_directory=base_dir),name="selectfiles")
 
 # Datasink - creates output folder for important outputs
-datasink = Node(DataSink(base_directory=experiment_dir,
-                         container=output_dir),
-                name="datasink")
+datasink = Node(DataSink(base_directory=experiment_dir,container=output_dir),name="datasink")
 
 # Use the following DataSink output substitutions
 substitutions = [('_subject_id', ''),
@@ -258,7 +248,7 @@ datasink.inputs.substitutions = substitutions
 ## workflow
 # Create a preprocessing workflow
 preproc = Workflow(name='preproc')
-preproc.base_dir = opj(experiment_dir, working_dir)
+preproc.base_dir = base_dir
 
 # Connect all components of the preprocessing workflow
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id' )

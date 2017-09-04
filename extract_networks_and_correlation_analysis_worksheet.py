@@ -6,7 +6,6 @@ from nilearn.connectome import ConnectivityMeasure
 from os import path as op
 import os
 import logging
-logging.getLogger().setLevel(logging.DEBUG)
 import numpy as np
 from nilearn import (image, plotting)
 from nilearn.regions import RegionExtractor
@@ -14,6 +13,12 @@ import matplotlib.pyplot as plt
 
 # get experiment configuration
 experiment = experiment_config()["experiment"]
+
+logging.getLogger().setLevel(experiment["log_level"])
+
+# set up files' path
+subject_list = experiment["subjects_id"]
+logging.debug("Subject ids: " + str(subject_list))
 
 # set up working dir
 data_path = op.join(os.getcwd(), 'data')

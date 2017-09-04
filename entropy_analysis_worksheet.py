@@ -23,22 +23,24 @@ experiment = experiment_config()["experiment"]
 logging.getLogger().setLevel(experiment["log_level"])
 
 # set up working dirs
-data_dir = experiment["file_paths"]["data_dir"]
-out_dir = experiment["file_paths"]["entropy_outdir"]
-logging.debug("Data location: "+data_dir)
+data_dir = experiment["files_path"]["preproc_data_dir"]
+out_dir = experiment["files_path"]["entropy"]["outdir"]
+logging.debug("Preprocessed data location: "+data_dir)
 logging.debug("Output will be written: "+op.join(data_dir,'subject_preproc_dir',out_dir))
 
 # set up fmri parameters
+# time repetition
 TR = experiment["t_r"]
-n_regions= experiment["#regions"]
+# number of regions
+n_regions= experiment["#regions"] # TODO know after preprocess pipeline
 session_list = [1] #TODO allow more than one session
 
 # set up files' path
-subject_list = experiment["subject_ids"]
+subject_list = experiment["subjects_id"]
 logging.debug("Subject ids: " + str(subject_list))
 
 # set up ts file path and name from working_dir
-ts_file = experiment["file_paths"]["ts_file"]
+ts_file = experiment["files_path"]["ts_file"]
 logging.info("Timeseries files path: "+ts_file)
 
 # set up

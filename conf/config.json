@@ -1,11 +1,11 @@
 {
   "_comment":"Configuration file must be contain all parameters and file paths for the experiment",
   "experiment": {
-    "_comment":"",
+    "_comment":"Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths",
     "log_level": "DEBUG",
     "t_r":1.94,
     "#regions":48,
-    "subject_ids": [
+    "subjects_id": [
       "T003",
       "T004",
       "T006",
@@ -61,10 +61,17 @@
       "T081",
       "T082"
     ],
-    "file_paths":{
-      "data_dir":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc",
+    "files_path":{
+      "root":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM",
+      "preproc_data_dir":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc",
       "ts_file":"_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz_extracted_ts.csv",
-      "entropy_outdir":"entropy"
+      "preproc":{
+	              "working_dir":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos",
+                  "output":"preproc"
+      },
+      "entropy":{
+      		      "outdir":"entropy"
+      }
     }
   }
 }
