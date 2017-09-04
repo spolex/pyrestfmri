@@ -24,9 +24,11 @@ from utils import experiment_config
 # set up argparser
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
 parser.add_argument("config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config.json")
-parser.add_argument("move_plots", type=bool, help="MCFLIRT: Plot translation and rotations movement", nargs='?', default=False)
+parser.add_argument("move_plot", type=bool, help="MCFLIRT: Plot translation and rotations movement and save .par files", nargs='?', default=False)
 parser.add_argument("fwhm", type=list, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
 parser.add_argument("brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
+parser.add_argument("parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=1)
+
 
 args = parser.parse_args()
 
@@ -64,8 +66,39 @@ TR = experiment["t_r"]
 # plots
 mc_plots=['rotations','translations'] if args.move_plot else None
 
-## Configuration
+## Interfaces configuration
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
+
+# SelectFiles - to grab the data (alternativ to DataGrabber)
+anat_file = opj('{subject_id}', 'mprage.nii.gz')
+func_file = opj('{subject_id}', 'f1.nii.gz')
+
+templates = {'anat': anat_file,
+             'func': func_file}
+
+selectfiles = Node(SelectFiles(templates,base_directory=base_dir),name="selectfiles")
+
+# Datasink - creates output folder for important outputs
+datasink = Node(DataSink(base_directory=experiment_dir,container=output_dir),name="datasink")
+
+# Use the following DataSink output substitutions
+substitutions = [('_subject_id', ''),
+                 ('_session_id_', ''),
+                 ('_task-flanker', ''),
+                 ('_mcf.nii_mean_reg', '_mean'),
+                 ('.nii.par', '.par'),
+                 ]
+subjFolders = [('%s_%s/' % (sess, sub), '%s/%s' % (sub, sess))
+               for sess in session_list
+               for sub in subject_list]
+subjFolders += [('%s_%s' % (sub, sess), '')
+                for sess in session_list
+                for sub in subject_list]
+subjFolders += [('%s%s_' % (sess, sub), '')
+                for sess in session_list
+                for sub in subject_list]
+substitutions.extend(subjFolders)
+datasink.inputs.substitutions = substitutions
 
 # Select number of volumes
 trim = Node(interface=Trim(),output_type='NIFTI_GZ',name='select_volumes')
@@ -79,35 +112,16 @@ bet.inputs.reduce_bias = True
 
 
 # Slice Timing correction
-slice_timing_correction = Node(SliceTimer(time_repetition=TR, output_type='NIFTI_GZ'),
-               name="slice_timer")
+slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer")
 
 # MCFLIRT - motion correction
-mcflirt = Node(MCFLIRT(mean_vol=True,
-                       save_plots=True,
-                       output_type='NIFTI_GZ'),
-               name="mcflirt")
+mcflirt = Node(MCFLIRT(mean_vol=True, save_plots=args.move_plot), name="mcflirt")
 
-# Plot estimated motion parametersfrom realignment 
-plotter = Node(fsl.PlotMotionParams(), name="motion_correction_plots")
-plotter.inputs.in_source='fsl'
-plotter.iterables = ('plot_type',mc_plots)
-
-# Resample - resample anatomy to 3x3x3 voxel resolution
-resample = Node(Resample(voxel_size=(3, 3, 3.3),
-                         outputtype='NIFTI_GZ'),
-                name="resample")
-
-# FAST- for segmenting
-fast = Node(FAST(output_type='NIFTI_GZ'), name="segmentation")
-
-# FLIRT - coregister functional images to anatomical images
-anat2std = Node(FLIRT(output_type='NIFTI_GZ'), name="anat_to_standard")
-anat2std.inputs.reference = '/usr/share/data/fsl-mni152-templates/MNI152_T1_2mm_brain.nii.gz'
-
-coreg_step1 = Node(FLIRT(output_type='NIFTI_GZ'), name="coreg_step1")
-coreg_step2 = Node(FLIRT(output_type='NIFTI_GZ',
-                         apply_xfm=True), name="coreg_step2")
+# Plot estimated motion parametersfrom realignment
+if(args.move.plot):
+    plotter = Node(fsl.PlotMotionParams(), name="motion_correction_plots")
+    plotter.inputs.in_source='fsl'
+    plotter.iterables = ('plot_type',mc_plots)
 
 # coregistration step based on affine transformation using ANTs
 coreg = Node(Registration(), name='CoregAnts')
@@ -214,38 +228,8 @@ infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Templat
 infosource.iterables = [('subject_id', subject_list),
                         ('session_id', session_list)]
 
-# SelectFiles - to grab the data (alternativ to DataGrabber)
-anat_file = opj('{subject_id}', 'mprage.nii.gz')
-func_file = opj('{subject_id}', 'f1.nii.gz')
 
-templates = {'anat': anat_file,
-             'func': func_file}
-
-selectfiles = Node(SelectFiles(templates,base_directory=base_dir),name="selectfiles")
-
-# Datasink - creates output folder for important outputs
-datasink = Node(DataSink(base_directory=experiment_dir,container=output_dir),name="datasink")
-
-# Use the following DataSink output substitutions
-substitutions = [('_subject_id', ''),
-                 ('_session_id_', ''),
-                 ('_task-flanker', ''),
-                 ('_mcf.nii_mean_reg', '_mean'),
-                 ('.nii.par', '.par'),
-                 ]
-subjFolders = [('%s_%s/' % (sess, sub), '%s/%s' % (sub, sess))
-               for sess in session_list
-               for sub in subject_list]
-subjFolders += [('%s_%s' % (sub, sess), '')
-                for sess in session_list
-                for sub in subject_list]
-subjFolders += [('%s%s_' % (sess, sub), '')
-                for sess in session_list
-                for sub in subject_list]
-substitutions.extend(subjFolders)
-datasink.inputs.substitutions = substitutions
-
-## workflow
+############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
 preproc = Workflow(name='preproc')
 preproc.base_dir = base_dir
@@ -256,7 +240,7 @@ preproc.connect(selectfiles, 'func', trim, 'in_file')
 preproc.connect(selectfiles, 'anat', bet, 'in_file')
 preproc.connect(trim, 'out_file', slice_timing_correction, 'in_file')
 preproc.connect(slice_timing_correction, 'slice_time_corrected_file', mcflirt, 'in_file')
-preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
+if(args.move_plot):preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
 #func2highres
 preproc.connect(bet, 'out_file', coreg, 'fixed_image')
 preproc.connect(mcflirt, 'mean_img', coreg, 'moving_image')
@@ -294,11 +278,11 @@ preproc.connect(mcflirt, 'par_file', datasink, 'preproc.@par')
 preproc.connect(smooth, 'smoothed_file', datasink, 'preproc.@smooth')
 preproc.connect(bandpass_filter, 'out_file', datasink, 'preproc.@bandpass_filter')
 preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
-preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
+if(args.move_plot):preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
 
 #set up templates to register
-preproc.inputs.infosource.Template = opj(base_dir,'templates/MNI152_T1_1mm_brain.nii.gz')
-preproc.inputs.infosource.Template_3mm = opj(base_dir,'templates/MNI152_T1_3mm_brain.nii.gz')
+preproc.inputs.infosource.Template = opj(base_dir,experiment["files_path"]["register"]["template"])
+preproc.inputs.infosource.Template_3mm = opj(base_dir,experiment["files_path"]["register"]["template_3mm"])
 
 # visualizamos el workfow
 
@@ -316,4 +300,4 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.dot.png'))
 
 
 #preproc.run()
-preproc.run('MultiProc', plugin_args={'n_procs': 2})
+preproc.run('MultiProc', plugin_args={'n_procs': args.parallelism})
