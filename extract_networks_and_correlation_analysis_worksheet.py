@@ -1,5 +1,5 @@
 # In[]:
-from utils import flatmap
+from utils import flatmap,experiment_config
 #import nilearn modules
 from nilearn.connectome import ConnectivityMeasure
 
@@ -11,10 +11,9 @@ import numpy as np
 from nilearn import (image, plotting)
 from nilearn.regions import RegionExtractor
 import matplotlib.pyplot as plt
-from nilearn.datasets import load_mni152_template
 
-# get mni template
-template = load_mni152_template()
+# get experiment configuration
+experiment = experiment_config()["experiment"]
 
 # set up working dir
 data_path = op.join(os.getcwd(), 'data')
@@ -28,17 +27,11 @@ data_dir = '/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/prepr
 TR = 1.94
 n_regions= 48
 session_list = [1] #sessions start in 1
-#subject_list = ['T003', 'T004','T006','T013', 'T014', 'T015', 'T017', 'T018', 
-#                'T019', 'T021', 'T023','T024','T025', 'T026', 'T027', 'T028', 
-#                'T029', 'T030', 'T031', 'T032', 'T033', 'T035', 'T039', 'T040',
-#                'T042', 'T043', 'T045', 'T046', 'T056', 'T058', 'T059', 'T060',
-#                'T061', 'T062', 'T063', 'T064', 'T065', 'T066', 'T067', 'T068',
-#                'T069', 'T070', 'T071', 'T072', 'T073', 'T074', 'T075', 'T076',
-#                'T077', 'T078', 'T079', 'T080', 'T081', 'T082']
-subject_list = ['T026']
+subject_list = experiment["subject_ids"]
+logging.debug("Loading subjects: "+str(subject_list))
 
-#ts_file = '_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz' 
-ts_file = '_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz' 
+#ts_file = '_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz'
+ts_file = '_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz'
 cf_file = 'compcor/noise_components.txt'
 
 #set up data dirs
@@ -56,12 +49,12 @@ components_img = image.load_img(os.path.join(data_dir,"dic_learn_resting_state_a
 hdr = components_img.header
 shape = components_img.shape
 num_comp = shape[3]
-  
+
 # In[]
-#Region extracted 
+#Region extracted
 extractor = RegionExtractor(components_img, verbose=10, thresholding_strategy='ratio_n_voxels',
                             extractor='local_regions', memory="nilearn_cache", memory_level=2,
-                            standardize=True, detrend = True, low_pass = 0.15, high_pass=0.02, t_r=1.94)
+                            standardize=True, detrend = True, t_r=1.94)
 extractor.fit()
 
 # Extracted regions are stored in regions_img_
@@ -125,11 +118,11 @@ plotting.plot_connectome(mean_correlations, coords_connectome,
 for index in range(0,num_comp):
   img = image.index_img(components_img, index)
   coords = plotting.find_xyz_cut_coords(img)
-  plotting.plot_stat_map(image.index_img(components_img, index), 
-                         #bg_img=anat, 
+  plotting.plot_stat_map(image.index_img(components_img, index),
+                         #bg_img=anat,
                          cut_coords=coords, title='DMN Component '+str(index+1),
                          output_file=os.path.join(data_dir,"canica_resting_state_all_"+str(index+1)+"_1.png"))
-  
+
 # In[]
 # Now, we plot (right side) same network after region extraction to show that connected regions are nicely seperated.
 for index in range(0,num_comp):
@@ -146,5 +139,3 @@ for index in range(0,num_comp):
                           cmap=plotting.cm.alpha_cmap(color))
   display.savefig(os.path.join(data_dir,"canica_resting_state_"+str(index+1)+"_regions_1.png"))
   display.close()
-  
-  plotting.show()
