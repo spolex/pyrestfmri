@@ -12,7 +12,7 @@ import logging
 
 def f_psd(ts, TR=1.94):
     """
-    Calculate power spectra of time serie
+    Calculate power spectra of time series
     :param ts:
     :param TR:
     :return:

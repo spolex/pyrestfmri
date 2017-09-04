@@ -7,9 +7,8 @@
 from __future__ import print_function, division, unicode_literals, absolute_import
 from os.path import join as opj
 from nipype.interfaces import fsl
-from nipype.interfaces.fsl import FAST,MCFLIRT, FLIRT, BET, SUSAN, SliceTimer, TemporalFilter,ImageStats,Threshold,FilterRegressor
+from nipype.interfaces.fsl import MCFLIRT, BET, SUSAN, SliceTimer, TemporalFilter,ImageStats,Threshold,FilterRegressor
 from nipype.interfaces.ants import Registration
-from nipype.interfaces.afni import Resample
 from nipype.interfaces.nipy.preprocess import Trim
 from nipype.interfaces.afni import Detrend
 from nipype.algorithms import confounds

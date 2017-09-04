@@ -13,17 +13,14 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser(description="Functional atlas based region extractor")
-parser.add_argument("config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
-parser.add_argument("plot_connectcome", type=bool, help="Plot brain connectcome. default false", nargs='?',
-                    default=False)
-parser.add_argument("plot_components", type=bool, help="Plot region extracted for all components. default false",
-                    nargs='?', default=False)
-parser.add_argument("plot_regions", type=bool, help="""Plot (right side) same network after region extraction to show "
-                                                    that connected regions are nicely seperated. default false""",
-                    nargs='?', default=False)
-parser.add_argument("highpass", type=int, help="high pass filter, default none", nargs='?', default=None)
-parser.add_argument("lowpass", type=int, help="low pass filter, default none", nargs='?', default=None)
-
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
+parser.add_argument("-b","--plot_connectcome", action="store_true", help="Plot brain connectcome")
+parser.add_argument("-o","--plot_components", action="store_true", help="Plot region extracted for all components")
+parser.add_argument("-r","--plot_regions", action="store_true", help="""Plot (right side) same network after region extraction to show "
+                                                    that connected regions are nicely seperated""")
+parser.add_argument("-i","--highpass", type=float, help="high pass filter, default none", nargs='?', default=None)
+parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default none", nargs='?', default=None)
+parser.add_argument("-v","--verbose", type=int, help="verbose leevel, default 10", nargs='?', default=10)
 
 
 args=parser.parse_args()
@@ -60,7 +57,7 @@ sessions_subjects_dir = map(lambda session: map(lambda subject_pref: '_session_i
 #flattened all filenames
 input_dirs = map(lambda session: map(lambda subj:op.join(data_dir,subj),session),sessions_subjects_dir)
 
-#functional images and components confounds TODO get from nipypeinputs
+#functional images and components confounds
 func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_file),session),sessions_subjects_dir))
 confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session),sessions_subjects_dir))
 
@@ -71,9 +68,9 @@ num_comp = shape[3]
 
 # In[]
 #Region extracted
-extractor = RegionExtractor(components_img, verbose=10, thresholding_strategy='ratio_n_voxels',
+extractor = RegionExtractor(components_img, verbose=args.verbose, thresholding_strategy='ratio_n_voxels',
                             extractor='local_regions', memory="nilearn_cache", memory_level=2,
-                            standardize=True, detrend = True, t_r=1.94)
+                            standardize=False, detrend = False, t_r=TR)
 extractor.fit()
 
 # Extracted regions are stored in regions_img_
@@ -89,7 +86,6 @@ title = ('%d regions are extracted from %d components.'
 plotting.plot_prob_atlas(regions_extracted_img, view_type='filled_contours',
                          title=title,
                          output_file=op.join(data_dir,"canica_func_map_comp_"+str(num_comp)+"_1.png")
-#                         threshold=0.002
                          )
 
 # In[]
