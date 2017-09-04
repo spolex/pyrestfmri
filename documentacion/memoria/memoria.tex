@@ -1,0 +1,34 @@
+\documentclass[12pt, spanish]{report}
+
+\usepackage[spanish]{babel}
+\usepackage[backend=biber]{biblatex}
+\usepackage[utf8]{inputenc}
+
+
+\addbibresource{refs.bib}
+
+\includeonly{front, chapter01}
+
+\begin{document}
+
+\include{front} % This is the titlepage
+\setcounter{page}{0}
+\pagenumbering{roman}
+\include{preface}
+\include{acknowledgment}
+\include{summary}
+\tableofcontents
+\setcounter{page}{0}
+\pagenumbering{arabic}
+\include{chapter01}
+\include{chapter02}
+\include{chapter0n}
+% Include more chapters as required.
+5%%=========================================
+\appendix
+\include{acronyms}
+\include{appendix-b}
+
+\printbibliography
+
+\end{document}
