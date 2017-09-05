@@ -10,6 +10,7 @@ tmp.py
 *.bbl
 *.bcf
 *.blg
-documentacion/memoria/memoria.run.xml
+*.run.xml
 *.toc
 log/
+*.synctex.gz
