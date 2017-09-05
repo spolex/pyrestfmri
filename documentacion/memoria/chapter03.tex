@@ -1,0 +1,54 @@
+% !TEX encoding = UTF-8 Unicode
+%!TEX root = memoria.tex
+% !TEX spellcheck = es-ES
+%%=========================================
+\chapter{Metodología}
+
+%%=========================================
+\section{Visualización y selección de imágenes}
+%%=========================================
+\section{Preprocesado}
+\subsection{Transformación de formato}
+\subsection{Pipeline de preprocesado}
+%Imágen de la gráfica simple del pipeline 
+\subsubsection{Neuroimágen anatómica MPRAGE}
+
+\begin{enumerate}
+\item Extracción del cerebro
+%Imagen imágen anatómica antes de la extracción, pos y overlap 
+\item Segmentación de imágen
+\item Coregistro
+%Imagen imágen anatómica overlap estandar
+\end{enumerate}
+
+\subsubsection{Neuroimágen funcional fmri}
+
+\begin{enumerate}
+\item Selección de volumenes para el procesado
+\item Slice Timer
+\item Corrección del movimiento 
+%Imagen plots rotación y traslación
+\item Co-registro en dos fases
+%Imagen overlap del registro a dos fases 
+\item Eliminación de artefactos
+\item Band pass filter
+\item Suavizado Del inglés \textit{smooth}
+%Imagen pre suavizado, kernel 4 y kernel 5 
+\end{enumerate}
+
+%%=========================================
+\section{Coonstrucción del mapa funcional}
+%Imágen mapa funcional
+%%=========================================
+\section{Extracción de las regiones y estudio de la correlación}
+%Imágen probaabilidad de alguna de las componentes
+%%=========================================
+\section{Extracción de parámetros}
+\subsection{Entropía Espectral de Shannon}
+%Gráfica
+\subsubsection{Espectro de potencia}
+%Gráfica
+\subsection{Entropía de permutación}
+%Gráfica
+%%=========================================
+
