@@ -14,3 +14,7 @@ tmp.py
 *.toc
 log/
 *.synctex.gz
+apuntes/
+*.out
+*.lof
+*.lot
