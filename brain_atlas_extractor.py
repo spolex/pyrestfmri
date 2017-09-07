@@ -16,18 +16,18 @@ import logging
 
 parser = argparse.ArgumentParser(description="Functional Brain Atlas extractor tool")
 
-parser.add_argument("config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
-parser.add_argument("canica", type=bool, help="Build CanICA based functional brain atlas. default false", nargs='?', default=False)
-parser.add_argument("dictlearn", type=bool, help="Build Dictlearn based functional brain atlas. default true", nargs='?', default=True)
-parser.add_argument("n_components", type=int, help="Number of components to build functional networks, default 20", nargs='?', default=20)
-parser.add_argument("n_jobs", type=int, help="Parallelism degree, default all CPUs except one (-2)", nargs='?', default=-2)
-parser.add_argument("fwhm", type=int, help="Smooth threshold, default None", nargs='?', default=None)
-parser.add_argument("verbose", type=int, help="Default max: 10", nargs='?', default=10)
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
+parser.add_argument("-f","--canica", action="store_true", help="Build CanICA based functional brain atlas. default false")
+parser.add_argument("-d","--dictlearn", action="store_true", help="Build Dictlearn based functional brain atlas. default true")
+parser.add_argument("-n","--n_components", type=int, help="Number of components to build functional networks, default 20", nargs='?', default=20)
+parser.add_argument("-j","--n_jobs", type=int, help="Parallelism degree, default all CPUs except one (-2)", nargs='?', default=-2)
+parser.add_argument("-s","--fwhm", type=int, help="Smooth threshold, default None", nargs='?', default=None)
+parser.add_argument("-v","--verbose", type=int, help="Default max: 10", nargs='?', default=10)
 
 
 
 args=parser.parse_args()
-
+logging.info("Configuration file is: "+args.config)
 # get experiment configuration
 experiment = experiment_config(args.config)["experiment"]
 
@@ -83,7 +83,7 @@ if(args.canica):
     from nilearn.plotting import plot_prob_atlas
 
     # Plot all ICA components together
-    plot_prob_atlas(components_img, title='All CanICA components')
+    plot_prob_atlas(components_img, title='All CanICA components', output_file=op.join(data_dir,'canica_resting_state_all_plot_prob_atlas'))
 
 # ------------------------------------------------------------------
 if(args.dictlearn):
@@ -109,4 +109,4 @@ if(args.dictlearn):
     from nilearn import plotting
 
     plotting.plot_prob_atlas(components_img_dic, view_type='filled_contours',
-                             title='Dictionary Learning maps')
+                             title='Dictionary Learning maps', output_file=op.join(data_dir,'dic_learn_resting_state_all_plot_prob_atlas'))
