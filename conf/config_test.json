@@ -9,11 +9,11 @@
     "entropy_log_file":"log/entropy_log_dev.log",
     "t_r":1.94,
     "#regions":48,
-    "subjects_id": ["T003", "T004"],
+    "subjects_id": ["T026", "T039", "T067", "T071", "T077"],
     "files_path":{
       "_comment":"",
       "root":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM",
-      "preproc_data_dir":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/test/datos/preproc",
+      "preproc_data_dir":"/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc",
       "ts_file":"_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz_extracted_ts.csv",
       "ts_image":"_fwhm_4/smooth/detrend_regfilt_filt_smooth.nii.gz",
       "preproc":{
