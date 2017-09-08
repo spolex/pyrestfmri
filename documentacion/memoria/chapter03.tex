@@ -9,23 +9,16 @@
 %%=========================================
 \section{Preprocesado}
 \subsection{Transformación de formato}
+
 \subsection{Pipeline de preprocesado}
+
 %Imágen de la gráfica simple del pipeline 
-\subsubsection{Neuroimágen anatómica MPRAGE}
-
-\begin{enumerate}
-\item Extracción del cerebro
-%Imagen imágen anatómica antes de la extracción, pos y overlap 
-\item Segmentación de imágen
-\item Coregistro
-%Imagen imágen anatómica overlap estandar
-\end{enumerate}
-
-\subsubsection{Neuroimágen funcional fmri}
+El pipeline de preprocesado implementado se compone de las siguientes fases
 
 \begin{enumerate}
 \item Selección de volumenes para el procesado
-\item Slice Timer
+\item Extracción del cerebro del volumen anatómico
+\item Slice Timming Correction
 \item Corrección del movimiento 
 %Imagen plots rotación y traslación
 \item Co-registro en dos fases
@@ -36,12 +29,46 @@
 %Imagen pre suavizado, kernel 4 y kernel 5 
 \end{enumerate}
 
+En la siguiente \ref{preproc:pipeline} se representa gráficamente las distintas fases del preprocesado que se han implementado como primera etapa del presente trabajo.
+
+\begin{figure}[H]
+	\includegraphics[width=\linewidth, height=\textheight, keepaspectratio]{img/preproc/graph.png}
+	\caption{DAG correspondiente con el pipeline de preprocesado}
+	\label{preproc:pipeline}
+\end{figure}
 %%=========================================
-\section{Coonstrucción del mapa funcional}
-%Imágen mapa funcional
+\section{Construcción del mapa funcional}
+
+%Analizar la influencia del suavizado sobre la generación del mapa funcional con los dos algoritmos, dictlearn & canICA
+Retomando lo comentado en el capítulo 2, el suavivado permite identificar los cambios a mayor escala cuanto mayor es el kernel utilizado ya que estos se ven más evidentes. En la siguiente secuencia de imágenes se puede apreciar la relación de como afecta en el número de regiones encontradas y el tamaño de estás a medida que aumenta el tamaño del diametro del Kernel utilizado.
+
+\begin{figure}[H]
+  \begin{subfigure}{\linewidth}
+  \includegraphics[width=.3\linewidth]{img/canica/canica_None.png}\hfill
+  \includegraphics[width=.3\linewidth]{img/canica/canica_4.png}\hfill
+  \includegraphics[width=.3\linewidth]{img/canica/canica_8.png}
+  \caption{Mapa funcional usando el algoritmo  CanICA con los parámetros de suavizado: None-4mm-8mm}
+  \end{subfigure}\par\medskip
+  \begin{subfigure}{\linewidth}
+  \includegraphics[width=.3\linewidth]{img/canica/dictlearn_None}\hfill
+  \includegraphics[width=.3\linewidth]{img/canica/dictlearn_4}\hfill
+  \includegraphics[width=.3\linewidth]{img/canica/dictlearn_8}
+  \caption{Mapa funcional usando el algoritmo  DictLearning con los parámetros de suavizado: None-4mm-8mm}
+  \end{subfigure}\par\medskip
+  \caption{Resultados de diferentes ejecuciones aplicando valores diferentes de suavizado con distintos algoritmos de extracción de mapa funcional}
+  \label{preproc:mapa}
+\end{figure}
+
+Inicialmente se construye un único mapa de conectividad incluyendo todos los individuos en la misma ejecución. Sin embargo esto no es correcto dado que el experimento asume que la actividad neuronal en reposo de los individuos que padecen de ET, no sigue los mismos patrones de activación que los individuos controles se procede a construir un mapa funcional para cada subconjunto de sujetos. Uno con todos los sujetos que padecen de ET y por tanto se obtendrá un mapa funcional asociado a los patrones de actividad neuronal influenciada por la enfermedad, y otro para los controles que deberían considerarse poseen una actividad \textit{``normal''} y por tanto los patrones de activación deberían aparecer distintos.
+ 
 %%=========================================
-\section{Extracción de las regiones y estudio de la correlación}
-%Imágen probaabilidad de alguna de las componentes
+\section{Extracción de las regiones y estudio de la conectividad}
+
+\begin{figure}[H]
+	\includegraphics[width=\linewidth, height=\textheight, keepaspectratio]{img/conectividad/matrix.png}
+	\caption{Matriz de conecctividad}
+	\label{preproc:conectividad}
+\end{figure}
 %%=========================================
 \section{Extracción de parámetros}
 \subsection{Entropía Espectral de Shannon}
