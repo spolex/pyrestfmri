@@ -9,7 +9,7 @@ Functional brain atlas extractor tool, CanICA and DictLearn based (FastICA)
 """
 
 # In[]:
-from utils import flatmap, experiment_config
+from utils import flatmap, experiment_config, update_experiment
 import os.path as op
 import argparse
 import logging
@@ -28,11 +28,13 @@ parser.add_argument("-v","--verbose", type=int, help="Default max: 10", nargs='?
 
 args=parser.parse_args()
 logging.info("Configuration file is: "+args.config)
+
 # get experiment configuration
-experiment = experiment_config(args.config)["experiment"]
+config  =  experiment_config(args.config)
+experiment = config["experiment"]
 
 logging.getLogger().setLevel(experiment["log_level"])
-logging.basicConfig(filename=experiment["brain_atlas_extractor_log_file"])
+logging.basicConfig(filename=experiment["files_path"]["brain_atlas"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 # set up files' path
 subject_list = experiment["subjects_id"]
@@ -44,7 +46,6 @@ data_dir = experiment["files_path"]["preproc_data_dir"]
 #In[]:read components image from file
 
 TR = experiment["t_r"]
-n_regions= experiment["#regions"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
 subject_list = experiment["subjects_id"]
 logging.debug("subjects_id"+str(subject_list))
@@ -52,6 +53,7 @@ logging.debug("subjects_id"+str(subject_list))
 # set up ts file path and name from working_dir
 ts_file = experiment["files_path"]["ts_image"]
 logging.info("Timeseries files path: "+ts_file)
+cf_file = experiment["files_path"]["preproc"]["noise_components"]
 
 #set up data dirs
 subjects_pref = map(lambda subject: '_subject_id_'+(subject), subject_list)
@@ -59,6 +61,8 @@ sessions_subjects_dir = map(lambda session: map(lambda subject_pref: '_session_i
 #flattened all filenames
 input_dirs = map(lambda session: map(lambda subj:op.join(data_dir,subj),session),sessions_subjects_dir)
 func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_file),session),sessions_subjects_dir))
+confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session),sessions_subjects_dir))
+
 
 # Extract resting-state networks with CanICA
 
@@ -69,21 +73,28 @@ if(args.canica):
 
     canica = CanICA(n_components=args.n_components, smoothing_fwhm=args.fwhm,
                    memory="nilearn_cache", memory_level=2,
-                   threshold=3., verbose=args.verbose, random_state=0
-                   ,n_jobs=args.n_jobs)
-    canica.fit(func_filenames)
+                   threshold=3., verbose=args.verbose, random_state=0,
+                   n_jobs=args.n_jobs, t_r=TR)
+    canica.fit(func_filenames, confounds=confounds_components)
 
     # Retrieve the independent components in brain space
     components_img = canica.masker_.inverse_transform(canica.components_)
     # components_img is a Nifti Image object, and can be saved to a file with
     # the following line:
-    components_img.to_filename(op.join(data_dir,'canica_resting_state_all.nii.gz'))
+    filename = 'canica_'+str(args.fwhm)+'_resting_state_all.nii.gz'
+    # save components image
+    components_img.to_filename(op.join(data_dir,filename))
+    # update configuration file
+    experiment["files_path"]["brain_atlas"]["components_img"] = filename
+    config["experiment"] = experiment
+    update_experiment(config,args.config)
 
     # -----------------------------------------------------------------
     from nilearn.plotting import plot_prob_atlas
 
     # Plot all ICA components together
-    plot_prob_atlas(components_img, title='All CanICA components', output_file=op.join(data_dir,'canica_resting_state_all_plot_prob_atlas'))
+    plot_prob_atlas(components_img, title='All CanICA components', view_type="filled_contours",
+                    output_file=op.join(data_dir,'canica_'+str(args.fwhm)+'_resting_state_all_plot_prob_atlas'))
 
 # ------------------------------------------------------------------
 if(args.dictlearn):
@@ -94,19 +105,26 @@ if(args.dictlearn):
     from nilearn.decomposition import DictLearning
 
     # Initialize DictLearning object
-    dict_learn = DictLearning(n_components=args.n_components,verbose=args.verbose,smoothing_fwhm=args.fwhm,
-                              standardize=False,t_r=TR,
+    dict_learn = DictLearning(n_components=args.n_components, verbose=args.verbose,
+                              smoothing_fwhm=args.fwhm, t_r=TR,
                               memory="nilearn_cache", memory_level=2,
                               random_state=0, n_jobs=args.n_jobs)
     # Fit to the data
-    dict_learn.fit(func_filenames)
+    dict_learn.fit(func_filenames, confounds=confounds_components)
     # Resting state networks/maps
     components_img_dic = dict_learn.masker_.inverse_transform(dict_learn.components_)
-    components_img_dic.to_filename(op.join(data_dir,'dic_learn_resting_state_all.nii.gz'))
+    filename = 'dic_learn_'+str(args.fwhm)+'_resting_state_all.nii.gz'
+    # save components image
+    components_img_dic.to_filename(op.join(data_dir, filename))
+    # update configuration file
+    experiment["files_path"]["brain_atlas"]["components_img_1"] = filename
+    config["experiment"] = experiment
+    update_experiment(config, args.config)
 
     # Visualization of resting state networks
     # Show networks using plotting utilities
     from nilearn import plotting
 
     plotting.plot_prob_atlas(components_img_dic, view_type='filled_contours',
-                             title='Dictionary Learning maps', output_file=op.join(data_dir,'dic_learn_resting_state_all_plot_prob_atlas'))
+                             title='Dictionary Learning maps',
+                             output_file=op.join(data_dir,'dic_learn_'+str(args.fwhm)+'_resting_state_all_plot_prob_atlas'))

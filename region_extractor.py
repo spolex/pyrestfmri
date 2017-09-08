@@ -1,5 +1,5 @@
 # In[]:
-from utils import flatmap,experiment_config
+from utils import flatmap,experiment_config, update_experiment
 #import nilearn modules
 from nilearn.connectome import ConnectivityMeasure
 
@@ -11,6 +11,7 @@ from nilearn import (image, plotting)
 from nilearn.regions import RegionExtractor
 import matplotlib.pyplot as plt
 import argparse
+import pprint
 
 parser = argparse.ArgumentParser(description="Functional atlas based region extractor")
 parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
@@ -26,10 +27,13 @@ parser.add_argument("-v","--verbose", type=int, help="verbose leevel, default 10
 args=parser.parse_args()
 
 # get experiment configuration
-experiment = experiment_config(args.config)["experiment"]
+config = experiment_config(args.config)
+experiment = config["experiment"]
+pprint.pprint(config)
+
 
 logging.getLogger().setLevel(experiment["log_level"])
-logging.basicConfig(filename=experiment["region_extractor_log_file"])
+logging.basicConfig(filename=experiment["files_path"]["r_extractor"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 # set up files' path
 subject_list = experiment["subjects_id"]
@@ -70,7 +74,7 @@ num_comp = shape[3]
 #Region extracted
 extractor = RegionExtractor(components_img, verbose=args.verbose, thresholding_strategy='ratio_n_voxels',
                             extractor='local_regions', memory="nilearn_cache", memory_level=2,
-                            standardize=False, detrend = False, t_r=TR)
+                            t_r=TR)
 extractor.fit()
 
 # Extracted regions are stored in regions_img_
@@ -79,6 +83,10 @@ regions_extracted_img = extractor.regions_img_
 n_regions_extracted = regions_extracted_img.shape[-1]
 # Each region index is stored in index_
 regions_index = extractor.index_
+
+experiment["#regions"] = n_regions_extracted
+config["experiment"] = experiment
+update_experiment(config, args.config)
 
 # Visualization of region extraction results
 title = ('%d regions are extracted from %d components.'

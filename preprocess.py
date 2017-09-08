@@ -24,7 +24,7 @@ from utils import experiment_config
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
 parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config.json")
 parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot translation and rotations movement and save .par files")
-parser.add_argument("-f","--fwhm", type=list, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
+parser.add_argument("-f","--fwhm", type=str, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
 parser.add_argument("-b","--brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
 parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=1)
 
@@ -55,7 +55,7 @@ subject_list=experiment["subjects_id"]
 session_list=[1]#TODO allow more than one session
 
 # smoothe filters threshold
-fwhm = args.fwhm or [5]
+fwhm = eval(args.fwhm) or [8]
 
 #treshold
 brightness_threshold = args.brightness_threshold or 1000.0

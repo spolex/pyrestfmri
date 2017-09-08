@@ -18,11 +18,11 @@ parser.add_argument("-e","--pe_save", action="store_true", help="Save calculated
 args = parser.parse_args()
 
 # get experiment configuration
-experiment = experiment_config()["experiment"]
+experiment = experiment_config(args.config)["experiment"]
 
 # set up logging envvironment
 logging.getLogger().setLevel(experiment["log_level"])
-logging.basicConfig(filename=experiment["entropy_log_file"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(filename=experiment["files_path"]["entropy"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 # set up working dirs
@@ -35,7 +35,7 @@ logging.debug("Output will be written: "+op.join(data_dir,'subject_preproc_dir',
 # time repetition
 TR = experiment["t_r"]
 # number of regions
-n_regions= experiment["#regions"] # TODO know after preprocess pipeline
+n_regions= experiment["#regions"]
 session_list = [1] #TODO allow more than one session
 
 # set up files' path

@@ -12,11 +12,32 @@ import json
 import logging
 
 def experiment_config(filename="conf/config.json"):
+    """
+    Load experiment configuration file
+    :param filename:
+    :return: dict with configuration
+    """
     try:
         with open(filename) as config_file:
             return json.load(config_file)
     except IOError:
         logging.error(filename+" doesn't exist, an existing file is needed like config file")
+        return -1
+
+def update_experiment(config, filename):
+    """
+
+    :param experiment: new experiment configuration
+    :param filename:
+    :return:
+    """
+    try:
+        with open(filename,'w') as config_file:
+            json.dump(config, config_file, indent=2)
+            return 0
+    except IOError:
+        logging.error(filename+" doesn't exist, an existing file is needed like config file")
+        return -1
 
 def flatmap(f, items):
   return chain.from_iterable(imap(f, items))
