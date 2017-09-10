@@ -9,6 +9,8 @@
       "T071", 
       "T077"
     ], 
+    "preproc_log_dir": "log", 
+    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
     "files_path": {
       "preproc": {
         "output": "preproc", 
@@ -22,27 +24,29 @@
         "noise_components": "compcor/noise_components.txt"
       }, 
       "_comment": "", 
+      "mdsl_ts_file": "masker_extracted_ts.csv", 
       "r_extractor": {
         "log": "log/region_extractor_dev.log"
       }, 
-      "ts_image": "_fwhm_6/smooth/detrend_regfilt_filt_smooth.nii.gz", 
+      "masker_ts_file": "masker_extracted_ts.csv", 
+      "ts_image": "_fwhm_8/smooth/detrend_regfilt_filt_smooth.nii.gz", 
       "brain_atlas": {
-        "components_img_1": "dic_learn_6_resting_state_all.nii.gz", 
+        "components_img_1": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc/control/dict/6_resting_state_all.nii.gz", 
         "log": "log/brain_atlas_extractor_dev.log", 
-        "components_img": "canica_6_resting_state_all.nii.gz"
+        "components_img": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc/control/canica/6_resting_state_all.nii.gz"
       }, 
       "entropy": {
         "_comment": "", 
-        "log_file": "log/entropy_log_dev.log", 
+        "log": "log/entropy_log_dev.log", 
         "outdir": "entropy"
       }, 
-      "ts_file": "_fwhm_6/smooth/detrend_regfilt_filt_smooth.nii.gz_extracted_ts.csv", 
+      "ts_file": "dict_extracted_ts.csv", 
       "root": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM", 
       "preproc_data_dir": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc"
     }, 
-    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
-    "preproc_log_dir": "log", 
+    "#components": 20, 
+    "split": "control", 
     "t_r": 1.94, 
-    "#regions": 30
+    "#regions": 31
   }
 }

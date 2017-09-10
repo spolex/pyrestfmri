@@ -7,8 +7,9 @@ from nitime.timeseries import TimeSeries
 import matplotlib.pyplot as plt
 import numpy as np
 from os import path as op
-
+from pprint import pprint
 import logging
+
 
 def f_psd(ts, TR=1.94):
     """
@@ -47,12 +48,36 @@ def ssH(density_func):
     :param density_func:
     :return:
     """
-    if not density_func.any():
+    if not np.asarray(density_func).any():
         return 0.
     entropy = 0.
+    logging.debug("SSH density_func leng is "+str(len(density_func)))
+    logging.debug("Probability sum is %f", np.sum(density_func))
     for density in density_func:
         if density > 0:
             entropy += density*np.log(1/density)
+    logging.debug("Calculated entropy value is %f ", entropy)
+    return entropy
+
+def ssH2(ts):
+    """
+    spectral shannon entropy implementation
+    :param density_func:
+    :return:
+    """
+    psd = f_psd(ts)
+    values = psd[1]
+    density_func = f_density(values)
+    logging.debug("SSH ts leng is "+str(len(ts)))
+    if not np.asarray(density_func).any():
+        return 0.
+    entropy = 0.
+    density_func = np.asarray(density_func)
+     #logging.debug("Density function probability sum is %d",np.sum(density_func))
+    for density in density_func:
+        if density > 0:
+            entropy += density*np.log(1/density)
+    logging.debug("Calculated entropy value is %f ", entropy)
     return entropy
 
 def p_entropy(ts, order=3, lag=3):
@@ -142,4 +167,22 @@ def plotAndSavePermEntropy(entropies, subj, path, session):
     plt.title('PE for subject: '+subj)
     fig.savefig(op.join(path,"session_id_"+str(session)+"_pentropy.png"))
     np.savetxt(op.join(path,"session_id_"+str(session)+"_pentropy.csv"), entropies, delimiter=",")
+    plt.close()
+
+def plotAndSave(density, subj, path, session):
+    """
+    Plot and save entropy
+    :param entropies:
+    :param subj:
+    :param path:
+    :param session:
+    :return:
+    """
+    fig = plt.figure()
+    plt.plot(density)
+    plt.xlabel('values')
+    plt.ylabel('Density function')
+    plt.title('PE for subject: '+subj)
+    fig.savefig(op.join(path,"session_id_"+str(session)+"_density.png"))
+    np.savetxt(op.join(path,"session_id_"+str(session)+"_density.csv"), density, delimiter=",")
     plt.close()

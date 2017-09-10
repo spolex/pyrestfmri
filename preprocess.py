@@ -27,6 +27,8 @@ parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot
 parser.add_argument("-f","--fwhm", type=str, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
 parser.add_argument("-b","--brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
 parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=1)
+parser.add_argument("-i","--highpass", type=float, help="high pass filter, default 0.01", nargs='?', default=0.01)
+parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default 0.08", nargs='?', default=0.08)
 
 
 args = parser.parse_args()
@@ -208,9 +210,7 @@ remove_file_header = Node(Function(input_names=["in_file"],output_names=["out_fi
 
     
 # Band pass filter
-bandpass_filter = Node(TemporalFilter(),name='bandpass_filter')
-bandpass_filter.highpass_sigma = 0.01
-bandpass_filter.lowpass_sigma = 0.1
+bandpass_filter = Node(TemporalFilter(highpass_sigma=args.highpass, lowpass_sigma=args.lowpass),name='bandpass_filter')
 
 # Detrend
 detrend = Node(Detrend(), name="detrend",output_type='NIFTI_GZ')
@@ -268,11 +268,10 @@ preproc.connect(threshold_stddev, 'out_file', compcor, 'mask_files')
 preproc.connect(tsnr, 'detrended_file', remove_noise, 'in_file') 
 preproc.connect(compcor, 'components_file', remove_file_header, 'in_file')
 preproc.connect(remove_file_header, 'out_file', remove_noise, 'design_file')
-#smooth
-preproc.connect(bandpass_filter, 'out_file', smooth, 'in_file')
 #bandpass filter
 preproc.connect(remove_noise, 'out_file',bandpass_filter,'in_file')
-
+#smooth
+preproc.connect(bandpass_filter, 'out_file', smooth, 'in_file')
 #datasink
 preproc.connect(mcflirt, 'par_file', datasink, 'preproc.@par')
 preproc.connect(smooth, 'smoothed_file', datasink, 'preproc.@smooth')

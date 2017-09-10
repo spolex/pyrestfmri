@@ -39,6 +39,16 @@ En la siguiente \ref{preproc:pipeline} se representa gráficamente las distintas
 %%=========================================
 \section{Construcción del mapa funcional}
 
+La construcción del mapa funcional se basa en el análisis \hyperref[glos:ica]{ICA}. ICA es un algoritmo de separación de fuente ciega que transforma
+un conjunto de señales en sus fuentes latentes asociadas. ICA hace no asumen ningún conocimiento a priori de estas fuentes. La única restricción impuesta a a las fuentes es que son estadísticamente independiente y como mucho uno de ellos es gaussiano.\cite{ica}.
+
+En 1998 aparece el primer metodo de generación de mapas de activación basado en ICA \cite{fmriica}. Elresultado de aplicar ICA a un conjunto de datos 4D, como es el caso del fMRI, es componentes espaciales independientes, cada una de ella correspondiente con su perfil temporal.
+
+
+Existen varios algoritmos ICA entre los que está el más utilizado \textbf{FastICA}, es un algoritmo de punto fijo que usa la negentropía como función de coste. Tipicamente ICA no se utiliza cn el fin de reducir la dimensionalidad si no para separar las señales superpuestas.
+
+
+
 %Analizar la influencia del suavizado sobre la generación del mapa funcional con los dos algoritmos, dictlearn & canICA
 Retomando lo comentado en el capítulo 2, el suavivado permite identificar los cambios a mayor escala cuanto mayor es el kernel utilizado ya que estos se ven más evidentes. En la siguiente secuencia de imágenes se puede apreciar la relación de como afecta en el número de regiones encontradas y el tamaño de estás a medida que aumenta el tamaño del diametro del Kernel utilizado.
 

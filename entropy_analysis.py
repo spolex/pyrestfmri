@@ -6,7 +6,6 @@ from os import path as op
 import numpy as np
 from entropy import f_psd, ssH, f_density, p_entropy, plotAndSavePSD, plotAndSaveEntropy, plotAndSavePermEntropy
 import logging
-from logging import handlers
 import argparse
 
 # set up argparser
@@ -15,6 +14,8 @@ parser.add_argument("-c","--config", type=str, help="Configuration file path", n
 parser.add_argument("-p","--psd_save", action="store_true", help="Save calculated PSD for each subject's regions in individual file, 1 activate")
 parser.add_argument("-s","--ssh_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
 parser.add_argument("-e","--pe_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
+parser.add_argument("-m","--mdsl", action="store_true", help="Header from mdsl labels")
+
 args = parser.parse_args()
 
 # get experiment configuration
@@ -28,6 +29,8 @@ logging.basicConfig(filename=experiment["files_path"]["entropy"]["log"], filemod
 # set up working dirs
 data_dir = experiment["files_path"]["preproc_data_dir"]
 out_dir = experiment["files_path"]["entropy"]["outdir"]
+out_prefix = experiment["split"]
+
 logging.debug("Preprocessed data location: "+data_dir)
 logging.debug("Output will be written: "+op.join(data_dir,'subject_preproc_dir',out_dir))
 
@@ -35,7 +38,7 @@ logging.debug("Output will be written: "+op.join(data_dir,'subject_preproc_dir',
 # time repetition
 TR = experiment["t_r"]
 # number of regions
-n_regions= experiment["#regions"]
+n_regions= 38 if args.mdsl else experiment["#regions"]
 session_list = [1] #TODO allow more than one session
 
 # set up files' path
@@ -43,12 +46,20 @@ subject_list = experiment["subjects_id"]
 logging.debug("Subject ids: " + str(subject_list))
 
 # set up ts file path and name from working_dir
-ts_file = experiment["files_path"]["ts_file"]
+filename = '/'.join(experiment["files_path"]["ts_image"].split('/')[0:-1])+'/msdl'
+ts_file = op.join(filename,experiment["files_path"]["mdsl_ts_file"]) if args.mdsl else op.join(filename,experiment["files_path"]["ts_file"])
 logging.info("Timeseries files path: "+ts_file)
 
-# set up
-header = map(lambda region: 'reg_'+str(region+1),range(n_regions))
-header = 'subject_id,'+','.join(header)
+# set up header for file
+if args.mdsl:
+  from nilearn import datasets
+  atlas = datasets.fetch_atlas_msdl()
+  labels =atlas["labels"]
+  header = labels
+else:
+  header = map(lambda region: 'reg_'+str(region+1),range(n_regions))
+
+header = 'subj_id,'+','.join(header)
 logging.debug("To save entropy results header will be: "+header)
 
 # In[]
@@ -68,14 +79,15 @@ logging.debug(input_filenames)
 # Calculate PSD for each subject's region
 logging.info("Start PSD calc for each subject's regions...")
 subject_region_ts = map(lambda filename: np.genfromtxt(filename, delimiter=',').T,input_filenames)
-#subject_region_ts_bandpass_fir = map(lambda region:map(bp_filter,region),subject_region_ts)
-subject_region_psd = map(lambda region:map(f_psd,region),subject_region_ts)    
+subject_region_psd = map(lambda region:map(f_psd,region),subject_region_ts)
 logging.info("Finish PSD calc for each subject's regions...")
 
 # In[]:
 # Calculate density function for each subject's region
 logging.info("Start density function calc for each subject's regions...")
 subject_region_psd_values = map(lambda subject: map(lambda region:region[1],subject),subject_region_psd)
+subject_region_psd_freqs = map(lambda subject: map(lambda region:region[0],subject),subject_region_psd)
+
 subject_region_f_density = map(lambda subject: map(lambda region:f_density(region),subject),subject_region_psd_values)
 logging.info("Finish density function calc for each subject's regions...")
 #save results into file
@@ -86,9 +98,13 @@ logging.info("Finish density function calc for each subject's regions...")
 # Calculate entropy for each subject's region
 logging.info("Start SSE calc for each subject's regions...")
 subject_region_entropy = map(lambda subject: map(lambda region:ssH(np.asarray(region)),subject),subject_region_f_density)
+#subject_region_entropy = map(lambda region:map(ssH2,region),subject_region_ts)
 logging.info("Finish SSE calc for each subject's regions...")
 #save results into file
-np.savetxt(op.join(data_dir, "et_ssh_entropy.csv"), np.column_stack((subject_list,subject_region_entropy)),
+#np.savetxt(op.join(data_dir, out_prefix+"_ssh_entropy.csv"), np.column_stack((subject_list,subject_region_entropy)),
+#           delimiter=",", fmt="%s", header=header, comments='')
+
+np.savetxt(op.join(data_dir, out_prefix+"_ssh_entropy.csv"), np.column_stack((subject_list,subject_region_entropy)),
            delimiter=",", fmt="%s", header=header, comments='')
 
 # In[]
@@ -97,7 +113,7 @@ logging.info("Start PE calc for each subject's regions...")
 subject_region_permutation_entropy = map(lambda subject: map(lambda region:p_entropy(region),subject),subject_region_psd_values)
 logging.info("Finish PE calc for each subject's regions...")
 #save results into file
-np.savetxt(op.join(data_dir, "et_permutation_entropy.csv"), np.column_stack((subject_list,subject_region_permutation_entropy)),
+np.savetxt(op.join(data_dir, out_prefix+"_permutation_entropy.csv"), np.column_stack((subject_list,subject_region_permutation_entropy)),
             delimiter=",", fmt="%s", header=header, comments='')
 
 # In[]
