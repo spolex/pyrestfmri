@@ -13,6 +13,7 @@ from utils import create_dir,flatmap, experiment_config, update_experiment
 import os.path as op
 import argparse
 import logging
+import numpy as np
 
 parser = argparse.ArgumentParser(description="Functional Brain Atlas extractor tool")
 
@@ -22,12 +23,17 @@ parser.add_argument("-d","--dictlearn", action="store_true", help="Build Dictlea
 parser.add_argument("-n","--n_components", type=int, help="Number of components to build functional networks, default 20", nargs='?', default=20)
 parser.add_argument("-j","--n_jobs", type=int, help="Parallelism degree, default all CPUs except one (-2)", nargs='?', default=-2)
 parser.add_argument("-s","--fwhm", type=float, help="Smooth threshold, default None", nargs='?', default=None)
+parser.add_argument("-i","--highpass", type=float, help="high pass filter, default none", nargs='?', default=None)
+parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default none", nargs='?', default=None)
 parser.add_argument("-v","--verbose", type=int, help="Default max: 10", nargs='?', default=10)
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are centered and normed: their mean is put to 0 and their variance to 1 in the time dimension.")
+parser.add_argument("-la","--labeled", action="store_true", help="Select users to build atlas if this parameter is used, users with label 0")
+
 
 args=parser.parse_args()
 
 fwhm = 'none' if args.fwhm is None else str(int(args.fwhm))
+labeled = 0 if args.labeled else 1
 
 logging.debug("Configuration file is "+args.config)
 logging.debug("Smoothing parameter is "+ str(args.fwhm))
@@ -41,7 +47,8 @@ logging.getLogger().setLevel(experiment["log_level"])
 logging.basicConfig(filename=experiment["files_path"]["brain_atlas"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 # set up files' path
-subject_list = experiment["subjects_id"]
+labels = np.array(experiment["labels"])
+subject_list = np.array(experiment["subjects_id"])[np.where(labels == labeled)[0]]
 logging.debug("Subject ids: " + str(subject_list))
 
 # set up working dir
@@ -51,7 +58,6 @@ data_dir = experiment["files_path"]["preproc_data_dir"]
 
 TR = experiment["t_r"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
-subject_list = experiment["subjects_id"]
 logging.debug("subjects_id"+str(subject_list))
 
 # set up ts file path and name from working_dir
@@ -85,7 +91,8 @@ if(args.canica):
     canica = CanICA(n_components=args.n_components, smoothing_fwhm=args.fwhm,
                    memory="nilearn_cache", memory_level=2,
                    threshold=3., verbose=args.verbose, random_state=0,
-                   n_jobs=args.n_jobs, t_r=TR, standardize=args.standarize)
+                   n_jobs=args.n_jobs, t_r=TR, standardize=args.standarize,
+                   high_pass=args.highpass, low_pass=args.lowpass)
     canica.fit(func_filenames, confounds=confounds_components)
 
     # Retrieve the independent components in brain space
@@ -107,7 +114,7 @@ if(args.canica):
     # Plot all ICA components together
     plot_prob_atlas(components_img, title='CanICA based Brain Atlas', view_type="filled_contours",
                     output_file=op.join(canica_dir,fwhm+'_resting_state_all_plot_prob_atlas'))
-
+# In[]
 # ------------------------------------------------------------------
 if(args.dictlearn):
     # Extract resting-state networks with DictionaryLearning
@@ -120,7 +127,8 @@ if(args.dictlearn):
     dict_learn = DictLearning(n_components=args.n_components, verbose=args.verbose,
                               smoothing_fwhm=args.fwhm, t_r=TR,
                               memory="nilearn_cache", memory_level=2,
-                              random_state=0, n_jobs=args.n_jobs, standardize=args.standarize)
+                              random_state=0, n_jobs=args.n_jobs, standardize=args.standarize,
+                              high_pass=args.highpass, low_pass=args.lowpass)
     # Fit to the data
     dict_learn.fit(func_filenames, confounds=confounds_components)
     # Resting state networks/maps

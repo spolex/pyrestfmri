@@ -7,7 +7,7 @@
 
 \section{Neuroimagen}
 
-Las técnicas de neuroimagen han cambiado el panorama en que los científicos abordan las hipótesis sobre la anatomía funcional del cerebro, especialmente en relación con el comportamiento y los desordenes clínicos. \cite{bold_fmri}
+Las técnicas de neuroimagen han cambiado el panorama en que los científicos abordan las hipótesis sobre la anatomía funcional del cerebro, especialmente en relación con el comportamiento y los trastornos clínicos. \cite{bold_fmri}
 
 \subsection{Anatomía básica del cerebro}
 
@@ -19,12 +19,11 @@ El cerebro humano está compuesto por alrededor de $10^{11}$ \hyperref[eda:neuro
   \caption{Neurona cerebral}\label{eda:neurona}
 \end{figure}
 
-
 Las neuronas están densamente conectadas y tienen muchas \hyperref[eda:neurona]{dentritas}. Asi mismo los axones conducen las señales electricas y están recubiertos por mielina. La mielina es un factor determinante a la hora de establecer la señal y el contraste de la resonancia magnética. Las neuronas se organizan en tres tipos de \hyperref[eda:tejidos]{tejidos}:
 
 \begin{itemize}
 	\item Sustancia Gris (GM): Contiene numerosos cuerpos celulares (somas) y relativamente pocos axones cubiertos de mielina. Se asocia con la función del procesamiento de la información, es decir con la capacidad del razonamiento. Se localiza en la superficie del cerebro, formando la corteza cerebral, que corresponde con la organización mas compleja de todo el sistema nervioso.
-	\item Sustancia Blanca (WM): Principalmente estáformado por un gran número de axones(parte de la neurona encargada de transmitir l información) cubiertos de mielina y contiene relativamente pocos cuerpos celulares. Se corresponde con la parte interior del cerebro.
+	\item Sustancia Blanca (WM): Principalmente está formado por un gran número de axones(parte de la neurona encargada de transmitir l información) cubiertos de mielina y contiene relativamente pocos cuerpos celulares. Se corresponde con la parte interior del cerebro.
 	\item Fluido Cerebroespinal (CSF): Para la protección mecánica básica e inmunológica del cerebro.
 \end{itemize} 
 
@@ -196,6 +195,7 @@ El pipeline de preprocesado de neuroimagen depende generalmente del investigador
 	\item Coregistro
 	\item Normalización
 	\item Smoothing o suavizado
+	\item Filtro de pasa banda: aunque existe controversia está ampliamente aceptado el filtrado entre las frecuencias 0.01 y 0.08 Hz en estudios fMRI en estado de reposo.\cite{brainhack}
 	\item Segmentación en regiones de interés (sMRI) 
 	\item Extracción del cerebro (sMRI)
 \end{itemize}
@@ -331,10 +331,10 @@ Estás dos transformaciones lineales son las más utilizadas.
   \caption{Registro de una imagen funcional en una imagen T1 del mismo individuo}         \label{preproc:func2t1}
 \end{figure}
 
-\paragraph{Normalización}. Se obtienen mejores resultados con un menor número de grados de libertad. Esto es debido a que se rata del mismo cerebro, y por tanto no es necesario realizar grandes transformaciones para registrar un cerebro utilizando otro distinto.
+\paragraph{Normalización}. Se obtienen mejores resultados con un menor número de grados de libertad. Esto es debido a que se trata del mismo cerebro, y por tanto no es necesario realizar grandes transformaciones para registrar un cerebro utilizando otro distinto.
 Algunos ejemplos de análisis que no requieren plantillas de referencia ya que es suficiente con co-registrar las imágenes:
 \begin{itemize}
- \item Identificar cambios longitudinales específicos de la ubicación: cambios en un mismo cerebro para diferentes visitas. Es decir que a cambiado en un cerebro en particular.
+ \item Identificar cambios longitudinales específicos de la ubicación: cambios en un mismo cerebro para diferentes visitas. Es decir, que ha cambiado en un cerebro en particular.
  \item Segmentación. Suponiendo que estamos interesados en identificar la materia blanca, gris o el area correspondiente a una patología no es necesario utilizar una template. Es posible realizarlo y existen métodos relacionados, sin embargo no es necesario.
  \item Análisis de intensidades.
 \end{itemize}
@@ -347,7 +347,7 @@ Existen muchos otros ejemplos en los que no es necesario aplicar esta técnica d
   \caption{ Registro T1 en una template MNI}         \label{preproc:highres2mni}
 \end{figure}
 
-\paragraph{ Registro basado en una template.} Asume que el cerebro puede ser manipulado en un espacio muestral dada una plantilla. A menudo está cuestión es motivo de debate. No siempre es razonable por qué el cerebro es una estructura muy compleja.
+\paragraph{ Registro basado en una template.} Asume que el cerebro puede ser manipulado en un espacio muestral dada una plantilla. A menudo está cuestión es motivo de debate. No siempre es razonable por que el cerebro es una estructura muy compleja.
 Se obtiene información anatómica de la plantilla, por ejemplo para poder identificar las regiones del cerebro.
 Ejemplos de análisis que requieren utilizar esta técnica:
 \begin{itemize}
@@ -368,7 +368,6 @@ Existe una cierta variabilidad inherente en la localización funcional entre suj
 \end{figure}
 
 El suavizado se implementa aplicando un Kernel gausiano 3D a la imagen, la cantidad de suavizado se determina por su anchura total establecido en el parámetro medio máximo (fwhm). Este parámetro indica el diametro del núcleo de suavizado. El valor de cada voxel se cambia como resultado de aplicar este kernel de suavizado a su valor original. Para el valor de este parámetro algunos autores sugieren usar dos veces las dimensiones de voxel como un punto de partida razonable.\cite{brainhack}
-
 
 
 %%=========================================
@@ -396,12 +395,14 @@ Existen distintas técnica con el fin de seleccionar los nodos:
 La conectividad cerebral se puede clasificar según su naturaleza:
 
 \begin{itemize}
+
 	\item Conectividad anatómica: decodifica las conexiones cerebrales anatómicas, estas conexiones tipicamente son traceadas por la materia blanca (WM).
 	\begin{figure}[H]
   		\centering
     	\includegraphics[scale=0.5]{img/anat_conect.png}
   		\caption{Conectividad anatómica}         \label{preproc:anat_conect}
 	\end{figure}
+	
 	Las medidas utilizadas para el cálculo de la conectividad funcional son:
 	\begin{itemize}
 		\item Numero de fibras
@@ -419,7 +420,7 @@ La conectividad cerebral se puede clasificar según su naturaleza:
 	\begin{figure}[H]
   		\centering
     	\includegraphics[scale=0.5]{img/func_conect.png}
-  		\caption{Conectividad funcional}         \label{preproc:func_conect}
+  		\caption{Conectividad funcional}\label{preproc:func_conect}
 	\end{figure}
 	
 	Las medidas utilizadas para el cálculo de la conectividad funcional son:
@@ -447,6 +448,7 @@ La conectividad cerebral se puede clasificar según su naturaleza:
 		\item Modelado causal directo
 		\item Modelado de equación estructural
 	\end{itemize}
+	
 \end{itemize}
 \cite{brainhack}.
 
@@ -462,14 +464,12 @@ En la matriz \ref{preproc:matrix_conect} podemos observar que el nodo 52 y el no
 
 \section{Análisis no lineal}
 
-Las imágenes obtenidas por fMRI pueden ser modeladas con técnicas no lineales dado su bajo coste computacional y por representar soluciones confiables.  
+ Desde 1994 el modelo lineal general (GLM) se ha convertido en la herramienta principal de análisis fMRI debido a su flexibilidad para incorporar múltiples variables independientes cualitativas y cuantitativas. El propósito del GLM, es predecir la vaiación de una variable dependiente en terminos de una combinación lineal (suma ponderada) de las variables explicativas. El análisis estandar de datos fMRI se basa en un GLM.
+ Las imágenes obtenidas por fMRI no son estacionarias pueden ser modeladas con técnicas no lineales dado su bajo coste computacional y por representar soluciones confiables. 
 
-%%%=========================================
-\subsection{Teoría de la información}
-
-Existen estudios basados en la teoría de la información como el estudio del incremento de la entropía con la edad en la imagen funcional que recoge \cite{Yao2013}. 
-
-\subsubsection{Entropía espectral de Shannon}
-
-
-\subsubsection{Entropía de permutación}
+-Introducción a las técnicas lineales
+-Justificación uso de medidas no lineales
+-Uso de técnicas no lineales
+%	1.Metodos no parametricos
+%	2.Metodos parametricos
+%	3.Metodos tiempo frecuencia                                                                                                                                                                         
