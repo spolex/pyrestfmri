@@ -464,7 +464,16 @@ En la matriz \ref{preproc:matrix_conect} podemos observar que el nodo 52 y el no
 
 \section{Análisis no lineal}
 
- Desde 1994 el modelo lineal general (GLM) se ha convertido en la herramienta principal de análisis fMRI debido a su flexibilidad para incorporar múltiples variables independientes cualitativas y cuantitativas. El propósito del GLM, es predecir la vaiación de una variable dependiente en terminos de una combinación lineal (suma ponderada) de las variables explicativas. El análisis estandar de datos fMRI se basa en un GLM.
+ Desde 1994 el modelo lineal general (GLM) se ha convertido en la herramienta principal de análisis fMRI debido a su flexibilidad para incorporar múltiples variables independientes cualitativas y cuantitativas. El propósito del GLM, es predecir la variación de una variable dependiente en terminos de una combinación lineal (suma ponderada) de las variables explicativas. El análisis estandar de datos fMRI se basa en rl snślidid masivo univariante. El modelo se estima para cada voxel de forma independiente.
+ 
+ 	\begin{figure}[H]
+  		\centering
+    	\includegraphics[scale=0.5]{img/glm.png}
+  		\caption{}         \label{preproc:glm}
+	\end{figure}
+
+$Y$ es un vector que recoge la señal \textbf{BOLD} de un único voxel en volumenes sucesivos.
+	
  Las imágenes obtenidas por fMRI no son estacionarias pueden ser modeladas con técnicas no lineales dado su bajo coste computacional y por representar soluciones confiables. 
 
 -Introducción a las técnicas lineales

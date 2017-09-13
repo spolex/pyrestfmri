@@ -7,7 +7,6 @@ from nitime.timeseries import TimeSeries
 import matplotlib.pyplot as plt
 import numpy as np
 from os import path as op
-from pprint import pprint
 import logging
 
 

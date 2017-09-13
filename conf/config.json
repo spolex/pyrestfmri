@@ -71,10 +71,12 @@
         "working_dir": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos", 
         "noise_components": "compcor/noise_components.txt"
       }, 
+      "msdl_ts_file": "msdl/masker_extracted_ts.csv", 
       "_comment": "", 
       "r_extractor": {
         "log": "log/region_extractor_dev.log"
       }, 
+      "masker_ts_file": "dictmasker_extracted_ts.csv", 
       "ts_image": "remove_noise/detrend_regfilt.nii.gz", 
       "brain_atlas": {
         "components_img_1": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc/et/dict/6_resting_state_all.nii.gz", 
@@ -86,7 +88,7 @@
         "log": "log/entropy_log_dev.log", 
         "outdir": "entropy"
       }, 
-      "ts_file": "canica_extracted_ts.csv", 
+      "ts_file": "detrend_regfilt.nii.gz_extracted_ts.csv", 
       "root": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM", 
       "preproc_data_dir": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc"
     }, 
@@ -148,8 +150,8 @@
       0
     ], 
     "#components": 20, 
-    "split": "et", 
+    "split": "control", 
     "t_r": 1.94, 
-    "#regions": 74
+    "#regions": 51
   }
 }

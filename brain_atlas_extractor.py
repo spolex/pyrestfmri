@@ -58,7 +58,6 @@ data_dir = experiment["files_path"]["preproc_data_dir"]
 
 TR = experiment["t_r"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
-logging.debug("subjects_id"+str(subject_list))
 
 # set up ts file path and name from working_dir
 ts_file = experiment["files_path"]["ts_image"]
@@ -125,7 +124,7 @@ if(args.dictlearn):
 
     # Initialize DictLearning object
     dict_learn = DictLearning(n_components=args.n_components, verbose=args.verbose,
-                              smoothing_fwhm=args.fwhm, t_r=TR,
+                              smoothing_fwhm=args.fwhm, t_r=TR, alpha=10,
                               memory="nilearn_cache", memory_level=2,
                               random_state=0, n_jobs=args.n_jobs, standardize=args.standarize,
                               high_pass=args.highpass, low_pass=args.lowpass)

@@ -10,7 +10,7 @@ import argparse
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Process Shannon entropy and Permutation entropy")
-parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="config.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
 parser.add_argument("-p","--psd_save", action="store_true", help="Save calculated PSD for each subject's regions in individual file, 1 activate")
 parser.add_argument("-s","--ssh_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
 parser.add_argument("-e","--pe_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
@@ -46,8 +46,8 @@ subject_list = experiment["subjects_id"]
 logging.debug("Subject ids: " + str(subject_list))
 
 # set up ts file path and name from working_dir
-filename = '/'.join(experiment["files_path"]["ts_image"].split('/')[0:-1])+'/msdl'
-ts_file = op.join(filename,experiment["files_path"]["mdsl_ts_file"]) if args.mdsl else op.join(filename,experiment["files_path"]["ts_file"])
+filename = '/'.join(experiment["files_path"]["ts_image"].split('/')[0:-1])
+ts_file = op.join(filename,experiment["files_path"]["msdl_ts_file"]) if args.mdsl else op.join(filename,experiment["files_path"]["ts_file"])
 logging.info("Timeseries files path: "+ts_file)
 
 # set up header for file
