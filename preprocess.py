@@ -1,17 +1,14 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Sun Aug  6 19:52:35 2017
-
 @author: spolex
 """
 
 from __future__ import print_function, division, unicode_literals, absolute_import
 from os.path import join as opj
 from nipype.interfaces import fsl
-from nipype.interfaces.fsl import FAST,MCFLIRT, FLIRT, BET, SUSAN, SliceTimer, TemporalFilter,ImageStats,Threshold,FilterRegressor
+from nipype.interfaces.fsl import MCFLIRT, BET, SUSAN, SliceTimer, TemporalFilter,ImageStats,Threshold,FilterRegressor
 from nipype.interfaces.ants import Registration
-from nipype.interfaces.afni import Resample
 from nipype.interfaces.nipy.preprocess import Trim
 from nipype.interfaces.afni import Detrend
 from nipype.algorithms import confounds
@@ -19,57 +16,91 @@ from nipype.interfaces.io import SelectFiles, DataSink
 from nipype.pipeline.engine import Workflow, Node
 from nipype.interfaces.utility import Function,IdentityInterface, Merge
 from nipype.interfaces.ants import ApplyTransforms
-
-
+import argparse
 from nipype import config, logging
+from utils import experiment_config
+
+# set up argparser
+parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
+parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config.json")
+parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot translation and rotations movement and save .par files")
+parser.add_argument("-f","--fwhm", type=str, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
+parser.add_argument("-b","--brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
+parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=1)
+parser.add_argument("-i","--highpass", type=float, help="high pass filter, default 0.01", nargs='?', default=0.01)
+parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default 0.08", nargs='?', default=0.08)
+
+
+args = parser.parse_args()
+
+# load experiment configuration
+experiment = experiment_config(args.config)["experiment"]
+# set up envvironment
 config.enable_debug_mode()
-cfg = dict(execution={"crashfile_format": "plain text"})
-config.update_config(cfg)
+config.set('execution', 'stop_on_first_crash', 'true')
+config.set('execution', 'remove_unnecessary_outputs', 'true')
+config.set('logging', 'workflow_level', experiment["log_level"])
+config.set('logging', 'interface_level', experiment["log_level"])
+config.set('logging', 'log_to_file', True)
+config.set('logging', 'log_directory', experiment["preproc_log_dir"])
 logging.update_logging(config)
 
-#set up params
-run = [1]
-
-#set working dirs
-experiment_dir = '/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM'
-output_dir='output'
-working_dir='datos'
-base_dir = opj(experiment_dir, working_dir)
+# set working dirs
+experiment_dir = experiment["files_path"]["root"]
+base_dir = experiment["files_path"]["preproc"]["working_dir"]
+output_dir = experiment["files_path"]["preproc"]["output"]
 
 
-#set subject list TODO get from args
-#subject_list = ['T003','T004','T006', 'T013','T014', 'T015', 'T017', 'T018', 
-#                'T019', 'T021', 'T023', 'T024', 'T025', 'T026', 'T027', 'T028', 
-#                'T029', 'T030', 'T031', 'T032', 'T033',
-#                'T074', 'T075', 'T076', 'T077', 'T078', 'T079', 'T080', 'T081',
-#                'T082']
+subject_list=experiment["subjects_id"]
 
-#subject_list = ['T035', 'T039', 'T040', 'T042', 'T043', 'T045', 'T046', 'T056']
+# session id list
+session_list=[1]#TODO allow more than one session
 
-subject_list = ['T058', 'T059', 'T060', 'T061', 'T062', 'T063', 'T064', 'T065', 'T066', 'T067', 'T068', 'T069', 'T070', 'T071', 
-'T072', 'T073']
-
-#session id list
-session_list=[1]
-
-#smoothe filters treshold TODO from args or default value 
-fwhm= [4,5]
-#fwhm= [4,5,8]
-
-#transforms
-t_in = ['in1','in2']
+# smoothe filters threshold
+fwhm = eval(args.fwhm) or [8]
 
 #treshold
-brightness_threshold = 1000.0
+brightness_threshold = args.brightness_threshold or 1000.0
 
 # time repetition
-TR = 1.94
+TR = experiment["t_r"]
 
 # plots
-mc_plots=['rotations','translations']
+mc_plots=['rotations','translations'] if args.move_plot else None
 
-## Configuration
+## Interfaces configuration
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
+
+# SelectFiles - to grab the data (alternativ to DataGrabber)
+anat_file = opj('{subject_id}', 'mprage.nii.gz')
+func_file = opj('{subject_id}', 'f1.nii.gz')
+
+templates = {'anat': anat_file,
+             'func': func_file}
+
+selectfiles = Node(SelectFiles(templates,base_directory=base_dir),name="selectfiles")
+
+# Datasink - creates output folder for important outputs
+datasink = Node(DataSink(base_directory=experiment_dir,container=output_dir),name="datasink")
+
+# Use the following DataSink output substitutions
+substitutions = [('_subject_id', ''),
+                 ('_session_id_', ''),
+                 ('_task-flanker', ''),
+                 ('_mcf.nii_mean_reg', '_mean'),
+                 ('.nii.par', '.par'),
+                 ]
+subjFolders = [('%s_%s/' % (sess, sub), '%s/%s' % (sub, sess))
+               for sess in session_list
+               for sub in subject_list]
+subjFolders += [('%s_%s' % (sub, sess), '')
+                for sess in session_list
+                for sub in subject_list]
+subjFolders += [('%s%s_' % (sess, sub), '')
+                for sess in session_list
+                for sub in subject_list]
+substitutions.extend(subjFolders)
+datasink.inputs.substitutions = substitutions
 
 # Select number of volumes
 trim = Node(interface=Trim(),output_type='NIFTI_GZ',name='select_volumes')
@@ -83,37 +114,16 @@ bet.inputs.reduce_bias = True
 
 
 # Slice Timing correction
-slice_timing_correction = Node(SliceTimer(
-                       time_repetition=1.94,
-                       output_type='NIFTI_GZ'),
-               name="slice_timer")
+slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer")
 
 # MCFLIRT - motion correction
-mcflirt = Node(MCFLIRT(mean_vol=True,
-                       save_plots=True,
-                       output_type='NIFTI_GZ'),
-               name="mcflirt")
+mcflirt = Node(MCFLIRT(mean_vol=True, save_plots=args.move_plot), name="mcflirt")
 
-# Plot estimated motion parametersfrom realignment 
-plotter = Node(fsl.PlotMotionParams(), name="motion_correction_plots")
-plotter.inputs.in_source='fsl'
-plotter.iterables = ('plot_type',mc_plots)
-
-# Resample - resample anatomy to 3x3x3 voxel resolution
-resample = Node(Resample(voxel_size=(3, 3, 3.3),
-                         outputtype='NIFTI_GZ'),
-                name="resample")
-
-# FAST- for segmenting
-fast = Node(FAST(output_type='NIFTI_GZ'), name="segmentation")
-
-# FLIRT - coregister functional images to anatomical images
-anat2std = Node(FLIRT(output_type='NIFTI_GZ'), name="anat_to_standard")
-anat2std.inputs.reference = '/usr/share/data/fsl-mni152-templates/MNI152_T1_2mm_brain.nii.gz'
-
-coreg_step1 = Node(FLIRT(output_type='NIFTI_GZ'), name="coreg_step1")
-coreg_step2 = Node(FLIRT(output_type='NIFTI_GZ',
-                         apply_xfm=True), name="coreg_step2")
+# Plot estimated motion parametersfrom realignment
+if args.move_plot:
+    plotter = Node(fsl.PlotMotionParams(), name="motion_correction_plots")
+    plotter.inputs.in_source='fsl'
+    plotter.iterables = ('plot_type',mc_plots)
 
 # coregistration step based on affine transformation using ANTs
 coreg = Node(Registration(), name='CoregAnts')
@@ -200,9 +210,7 @@ remove_file_header = Node(Function(input_names=["in_file"],output_names=["out_fi
 
     
 # Band pass filter
-bandpass_filter = Node(TemporalFilter(),name='bandpass_filter')
-bandpass_filter.highpass_sigma = 0.01
-bandpass_filter.lowpass_sigma = 0.1
+bandpass_filter = Node(TemporalFilter(highpass_sigma=args.highpass, lowpass_sigma=args.lowpass),name='bandpass_filter')
 
 # Detrend
 detrend = Node(Detrend(), name="detrend",output_type='NIFTI_GZ')
@@ -220,45 +228,11 @@ infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Templat
 infosource.iterables = [('subject_id', subject_list),
                         ('session_id', session_list)]
 
-# SelectFiles - to grab the data (alternativ to DataGrabber)
-anat_file = opj('{subject_id}', 'mprage.nii.gz')
-func_file = opj('{subject_id}', 'f1.nii.gz')
 
-templates = {'anat': anat_file,
-             'func': func_file}
-
-selectfiles = Node(SelectFiles(templates,
-                               base_directory=base_dir),
-                   name="selectfiles")
-
-# Datasink - creates output folder for important outputs
-datasink = Node(DataSink(base_directory=experiment_dir,
-                         container=output_dir),
-                name="datasink")
-
-# Use the following DataSink output substitutions
-substitutions = [('_subject_id', ''),
-                 ('_session_id_', ''),
-                 ('_task-flanker', ''),
-                 ('_mcf.nii_mean_reg', '_mean'),
-                 ('.nii.par', '.par'),
-                 ]
-subjFolders = [('%s_%s/' % (sess, sub), '%s/%s' % (sub, sess))
-               for sess in session_list
-               for sub in subject_list]
-subjFolders += [('%s_%s' % (sub, sess), '')
-                for sess in session_list
-                for sub in subject_list]
-subjFolders += [('%s%s_' % (sess, sub), '')
-                for sess in session_list
-                for sub in subject_list]
-substitutions.extend(subjFolders)
-datasink.inputs.substitutions = substitutions
-
-## workflow
+############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
 preproc = Workflow(name='preproc')
-preproc.base_dir = opj(experiment_dir, working_dir)
+preproc.base_dir = base_dir
 
 # Connect all components of the preprocessing workflow
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id' )
@@ -266,7 +240,7 @@ preproc.connect(selectfiles, 'func', trim, 'in_file')
 preproc.connect(selectfiles, 'anat', bet, 'in_file')
 preproc.connect(trim, 'out_file', slice_timing_correction, 'in_file')
 preproc.connect(slice_timing_correction, 'slice_time_corrected_file', mcflirt, 'in_file')
-preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
+if(args.move_plot):preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
 #func2highres
 preproc.connect(bet, 'out_file', coreg, 'fixed_image')
 preproc.connect(mcflirt, 'mean_img', coreg, 'moving_image')
@@ -294,21 +268,20 @@ preproc.connect(threshold_stddev, 'out_file', compcor, 'mask_files')
 preproc.connect(tsnr, 'detrended_file', remove_noise, 'in_file') 
 preproc.connect(compcor, 'components_file', remove_file_header, 'in_file')
 preproc.connect(remove_file_header, 'out_file', remove_noise, 'design_file')
-#smooth
-preproc.connect(bandpass_filter, 'out_file', smooth, 'in_file')
 #bandpass filter
 preproc.connect(remove_noise, 'out_file',bandpass_filter,'in_file')
-
+#smooth
+preproc.connect(bandpass_filter, 'out_file', smooth, 'in_file')
 #datasink
 preproc.connect(mcflirt, 'par_file', datasink, 'preproc.@par')
 preproc.connect(smooth, 'smoothed_file', datasink, 'preproc.@smooth')
 preproc.connect(bandpass_filter, 'out_file', datasink, 'preproc.@bandpass_filter')
 preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
-preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
+if(args.move_plot):preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
 
 #set up templates to register
-preproc.inputs.infosource.Template = opj(base_dir,'templates/MNI152_T1_1mm_brain.nii.gz')
-preproc.inputs.infosource.Template_3mm = opj(base_dir,'templates/MNI152_T1_3mm_brain.nii.gz')
+preproc.inputs.infosource.Template = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template"])
+preproc.inputs.infosource.Template_3mm = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template_3mm"])
 
 # visualizamos el workfow
 
@@ -326,4 +299,4 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.dot.png'))
 
 
 #preproc.run()
-preproc.run('MultiProc', plugin_args={'n_procs': 2})
+preproc.run('MultiProc', plugin_args={'n_procs': args.parallelism})
