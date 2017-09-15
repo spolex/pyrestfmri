@@ -45,22 +45,81 @@ El pipeline de preprocesado implementado se compone de las siguientes fases
 
 En la siguiente imagen \ref{preproc:pipeline} se representa gráficamente las distintas fases del preprocesado que han sido implementadas como primera etapa del presente estudio.
 
-\subsection{Extracción del cerebro: BET}
-
-\subsection{Slice Timming Correction}
-
-\subsection{Motion correction: MCFLIRT}
-
-\subsection{Normalización en dos fases: ANTs}
-
-\subsection{Eliminación de artefactos: ACompcor}
-
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.5\textwidth]{img/preproc/graph.png}
 	\caption{DAG correspondiente con el pipeline de preprocesado}
 	\label{preproc:pipeline}
 \end{figure}
+
+\subsection{Extracción del cerebro: BET}
+
+ La extracción del cerebro es la primera etapa del preprocesado sobre la imágen estructural. \hyperref[glos:bet]{BET} forma parte de la suite de la herramienta opensource \hyperref[glos:fsl]{FSL} orientada al análisis de imágen cerebral.\\
+  Este módulo es el encargado de eliminar los tejidos que no forman parte de la masa cerebral. 
+ Se trata de un método automático para la segmentación de imágen de resonancia magnética en tejido cerebral y tejido no cerebral. El método es muy rápido y no requiere de un preprocesamiento previo antes de ser aplicado.\cite{bet}
+ En la siguiente \hyperref[preproc:bet] imágen se observa el resultado de aplicar este método a la imágen anatómica de uno de los individuos incluidos en el experimento.
+ 
+ \begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{img/preproc/bet.png}
+	\caption{Resultado de aplicar BET en la imagen de uno de los sujetos enfermos del experimento}
+	\label{preproc:bet}
+\end{figure}
+
+\subsection{Slice Timming Correction}
+
+Con la finalidad de recopilar todos los datos del cerebro, una secuencia típica podría ser adquirir 30 \textit{slices} o más en un intervalo temporal (TR) de tres segundos. Una aproximación trata de utilizar la adquisición en orden ascendente o descentente, la cual obtiene los datos de forma consecutiva. Sin embargo actualmente la mayoría de estudios fMRI usan la adquisición de \textit{slides} por intervalos, en la cual el escaner primero obtiene las imágenes impares, y luego todas las pares.
+
+En el presente estudio se obtienen en orden consecutivo ascentente con un $TR=1.94s$. El método usado por \hyperref[glos:fsl]{FSL} funciona usando la interpolación con ventana de Hanning para cambiar cada serie de tiempo por una fracción apropiada de una TR relativa a la mitad del período TR. Es necesario conocer previamente la metodología de adquisición antes de aplicar el método.
+
+\subsection{Motion correction: MCFLIRT}
+
+ Para la corrección del movimiento se utiliza el módulo MCFLIRT de FSL. Se trata de una herramienta de corrección de movimiento intramodal diseñada para ser aplicada se series temporales obtenidas de las imágenes fMRI. Se trata de una herramienta robusta y precisa, totalmente automatizada. \cite{mcflirt}.
+ 
+\subsection{Normalización en dos fases: ANTs}
+
+\hyperref[glos:ants]{ANTs} es un conjunto de funciones orientadas al estado del arte de registro y segmentación de imagen médica. Su uso más común es para registrar los datos del cerebro en un espacio común estandar, por ejemplo MNI152, como realizamos en el presente estudio. Sin embargo contiene otros métodos para la generación de atlas cerebrales.
+
+Las entradas que se requieren en el registro son:
+
+\begin{itemize}
+	\item Imagen fija ode referencia
+	\item La imagen a transformar al espacio de la imagen de referencia.
+	\item Opcional: Una mascara para reducir el tiempo de computación.
+\end{itemize}
+
+En el presente estudio se ha seguido el método de registro en dos fases para normalizar las imágenes fMRI de todos los individuos en el espacio estandar MNI basado en el siguiente algoritmo:
+
+
+
+\begin{enumerate}
+\item Primero se registra la imágen fMRI en sMRI del mismo sujeto con una transformación lineal
+\item Se normaliza la imagen anatómica sMRI en el espacio estandar, utilizando una transformación no lineal basada en el algoritmo \textit{SyN}, un nuevo método de normalización simétrica de imágenes para maximizar la correlación cruzada dentro del espacio de mapas difeomórficos \cite{syn}.
+\item Se aplica la transformación generada en el paso uno a las imágenes fMRI obtenidas tras aplicar MCFLIRT. 
+\item El último paso aplica la transformación obtenida en la normalización de la imagen anatómica en el espacio estandar a las imágenes obtenidas en el paso anterior. 
+\end{enumerate}
+
+Siguiendo este proceso se consiguen resultados confiables \ref{preproc:ants} en la normalización grupal a un espacio estandar.
+
+\begin{figure}[H]
+  \begin{subfigure}{\linewidth}
+  \includegraphics[width=.5\linewidth , height=7cm]{img/preproc/mcf_out.png}\hfill
+  \includegraphics[width=.5\linewidth , height=7cm]{img/preproc/mprage_brain.png}\hfill
+  \caption{Imágenes funcional y anatómica previo al registro capturada con MRIcron}
+  \end{subfigure}\par\medskip
+  \begin{subfigure}{\linewidth}
+  \includegraphics[width=.5\linewidth]{img/preproc/f1.png}\hfill
+  \includegraphics[width=.5\linewidth]{img/preproc/highres2template.png}\hfill
+  \caption{Resultados intermedios tras los pasos 1 y 2}
+  \end{subfigure}\par\medskip
+  \caption{Resultado de aplicar el proceso de normalización en dos fases a un individuo en el experimento. Sobre ambas imágenes se superpone como \textit{overlay} la template}
+  \label{preproc:ants}
+\end{figure}
+
+\subsection{Eliminación de artefactos: ACompcor}
+
+\subsection{Preprocesado en el dominio de la frecuencia}
+
 %%=========================================
 \section{Construcción del mapa funcional}
 
@@ -109,7 +168,7 @@ En este paso se extraen las series temporales asociadas a cada ROI del atlas de 
 	\caption{ROIs funcionales obtenidas utilizando Dictionary Learnings en los enfermos de ET}	\label{metod:rois}
 \end{figure}
 
-En este paso se extrae las series representativas para cada ROI en cada sujeto.\cite{regions}
+En este paso se extrae las series representativas para cada ROI en cada sujeto para las frecuencias consideradas de interés en la actividad espontánea $0.01-0.08 Hz$ con un filtro de paso banda.\cite{regions}
 
 \begin{figure}[H]
 	\includegraphics[width=\linewidth, height=\textheight, keepaspectratio]{img/conectividad/ts.png}
