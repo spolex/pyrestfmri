@@ -15,6 +15,8 @@ parser.add_argument("-p","--psd_save", action="store_true", help="Save calculate
 parser.add_argument("-s","--ssh_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
 parser.add_argument("-e","--pe_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
 parser.add_argument("-m","--mdsl", action="store_true", help="Header from mdsl labels")
+parser.add_argument("-d", "--delimiter", type=str, help="CSV files delimiter", default=";")
+
 
 args = parser.parse_args()
 
@@ -41,14 +43,14 @@ TR = experiment["t_r"]
 n_regions= 38 if args.mdsl else experiment["#regions"]
 session_list = [1] #TODO allow more than one session
 
-# set up files' path
+# set up ts file path and name from working_dir
 subject_list = experiment["subjects_id"]
 logging.debug("Subject ids: " + str(subject_list))
-
-# set up ts file path and name from working_dir
 filename = '/'.join(experiment["files_path"]["ts_image"].split('/')[0:-1])
 ts_file = op.join(filename,experiment["files_path"]["msdl_ts_file"]) if args.mdsl else op.join(filename,experiment["files_path"]["ts_file"])
 logging.info("Timeseries files path: "+ts_file)
+
+classes = map(lambda label: "TE" if label > 0 else "CR",experiment["labels"])
 
 # set up header for file
 if args.mdsl:
@@ -59,7 +61,7 @@ if args.mdsl:
 else:
   header = map(lambda region: 'reg_'+str(region+1),range(n_regions))
 
-header = 'subj_id,'+','.join(header)
+header = 'subj_id'+args.delimiter+args.delimiter.join(header)
 logging.debug("To save entropy results header will be: "+header)
 
 # In[]
@@ -104,8 +106,8 @@ logging.info("Finish SSE calc for each subject's regions...")
 #np.savetxt(op.join(data_dir, out_prefix+"_ssh_entropy.csv"), np.column_stack((subject_list,subject_region_entropy)),
 #           delimiter=",", fmt="%s", header=header, comments='')
 
-np.savetxt(op.join(data_dir, out_prefix+"_ssh_entropy.csv"), np.column_stack((subject_list,subject_region_entropy)),
-           delimiter=",", fmt="%s", header=header, comments='')
+np.savetxt(op.join(data_dir, out_prefix+"_ssh_entropy.csv"), np.column_stack((subject_list,subject_region_entropy,classes)),
+           delimiter=args.delimiter, fmt="%s", header=header, comments='')
 
 # In[]
 # Calculate permutation entropy for each subject's region
@@ -113,8 +115,8 @@ logging.info("Start PE calc for each subject's regions...")
 subject_region_permutation_entropy = map(lambda subject: map(lambda region:p_entropy(region),subject),subject_region_psd_values)
 logging.info("Finish PE calc for each subject's regions...")
 #save results into file
-np.savetxt(op.join(data_dir, out_prefix+"_permutation_entropy.csv"), np.column_stack((subject_list,subject_region_permutation_entropy)),
-            delimiter=",", fmt="%s", header=header, comments='')
+np.savetxt(op.join(data_dir, out_prefix+"_permutation_entropy.csv"), np.column_stack((subject_list,subject_region_permutation_entropy,classes)),
+            delimiter=args.delimiter, fmt="%s", header=header, comments='')
 
 # In[]
 # plot and save psd freqs and values

@@ -88,7 +88,7 @@
         "log": "log/entropy_log_dev.log", 
         "outdir": "entropy"
       }, 
-      "ts_file": "detrend_regfilt.nii.gz_extracted_ts.csv", 
+      "ts_file": "masker_extracted_ts.csv", 
       "root": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM", 
       "preproc_data_dir": "/media/spolex/data_nw/Dropbox_old/Dropbox/TFM-Elekin/TFM/datos/preproc"
     }, 

@@ -4,31 +4,43 @@
 %%=========================================
 \chapter{Introducción}
 
-La imagen funcional de resonancia magnética en \textit{Resting-state} ha sido ampliamente utilizada desde que en 1995 se presentó el primer informe basado en el análisis BOLD \ref{glos:bold} orientado a identificar actividad neuronal espontanea \cite{mattoolbox}. La imagen de resonancia magnética fMRI en estado de reposo se considerada una potente herramienta para investigar la actividad neuronal espontanea. También es recomendada para realizar estudios clínicos, ya que se obtiene una resolución espacial y temporal aceptable y la no invasividad, así como su simplicidad ya que no es necesario diseñar y realizar complicadas tareas cognitivas.
+La imagen funcional de resonancia magnética en \textit{Resting-state} ha sido ampliamente utilizada desde que en 1995 se presentó el primer informe basado en el análisis BOLD \ref{glos:bold} orientado a identificar actividad neuronal espontanea \cite{mattoolbox}. La imagen de resonancia magnética fMRI en estado de reposo se considerada una potente herramienta para investigar está actividad neuronal. También es recomendada para realizar estudios clínicos, ya que se obtiene una resolución espacial y temporal aceptable y la no invasividad, así como su simplicidad ya que no es necesario diseñar y realizar complicadas tareas cognitivas.
 
 La conectividad funcional es uno de los análisis más utilizados en este tipo de estudios \cite{biswal,heuvel}. Todos estos métodos, y otros que aún no se han mencionado aquí, podrían formar parte de un framework de herramientas orientado al análisis de estudios fMRI en estado de reposo, ya que requieren de unas técnicas de preprocesado y análisis que puede no ser conveniente para otras modalidades. En este contexto y tras el estudio de las distintas herramientas se ha optado por usar el lenguaje de programación Python como tecnología principal, ya que actualmente existen proyectos importantes y suficientemente maduros, además de estar creados y mantenidos por una comunidad de neurocientificos que basa el desarrollo de estas herramientas en el estado del arte. Un claro ejemplo incluido en los \textbf{frameworks} utilizados es nipype \footnote{\url{nipype.readthedocs.io/en/latest/}} que dota la herramienta de un motor de workflows escalable, con conectores para las herramientas más importantes desarrollados y la posibilidad de paralelizar distintas etapas de los procesos entre otras bondades de las cuales veremos una pincelada en este trabajo. Otro pilar fundamental para el desarrollo de las mismás características, pero más orientado a tareas de aprendizaje automático es nilearn \footnote{http://nilearn.github.io/} basado en el popular framework de Machine Learning escrito en python Scikit-learn \footnote{url{http://scikit-learn.org/stable/}}.
 
-TODO intro ESSENTIAL TREMOR¿? 
 %%=========================================
 \section{Motivación}
+
+ El Temblor Esencial es uno de los desordenes del movimiento más comunes. Se caracteriza principalmente por temblores en manos y brazos que se hacen más evidentes en acciones voluntarias como beber, comer o escribir. Debido a esto los pacientes ven afectadas sus actividades diarias, estos pacientes a menudo evitan contextos sociales. Los sintomas del ET \ref{glos:et} no se limitan a las extremidades superiores; la cabeza, el cuello, voz, troco o piernas pueden verse afectados. Aunque es mucho más frecuente en los ancianos también puede aparecer en niños, por lo que no puede considerarse una enfermedad relacionada con la edad, y tampoco se han encontrado evidencias que lo relacionen con el sexo.\\
+A pesar del grave deterioro que experimentan la mayoría de los pacientes, la ET fue, hasta hace poco, considerada simplemente como una afección benigna, monosintomática (es decir, motor). El aumento de la conciencia pública y las nuevas investigaciones han trasladado la percepción de ET a la de una enfermedad neurodegenerativa real que se caracteriza por síntomas motores y cognitivos.\\
+La definición clínica de esta emfermedad se encuentra aún bajo debate. El diagnóstico clínico actual basado en la declaración de consenso de la Sociedad de Trastornos del Movimiento tiene un margen de error estimado del 37\% de los falsos positivosn y las técnicas no invasivas como el análisis de neuroimagen podrían reducir potencialmente el margen de error.
+.\cite{neuessentialsinet}
 
 %%=========================================
 
 \section{Objetivos de este Trabajo}
 
-El análisis no invasivo del cerebro mediante neuroimagen, permite obtener valiosa información para la neurociencia y la medicina moderna. El presente estudio está orientado a la investigación y en la ayuda al diagnóstico precoz de la enfermedad de Temblor esencial. En este sentido se abordarán los siguientes objetivos:
+El análisis no invasivo del cerebro mediante neuroimagen, permite obtener información valiosa para la neurociencia y la medicina moderna. El presente estudio está orientado a la investigación y en la ayuda al diagnóstico precoz de la enfermedad de Temblor esencial. En este sentido se abordarán los siguientes objetivos:
 
 \begin{itemize}
 \item Investigar técnicas de procesado y análisis de imágen \hyperref[glos:fmri]{fMRi} en Temblor esencial y otros desordenes.
 \item Investigación de las técnicas de construcción de redes cerebrales.
 \item Análisis de la evolución de la intensidad en los mapas del fMRi
 \item Investigar técnicas de análisis no lineal de neuroimagen,
-\item Construción de una herramienta opensource modular, reutilizable y escalable orientada al análisis de neuroimagen
+\item Construción de una framework opensource modular, reutilizable y escalable orientado al análisis y preprocesado de neuroimagen fMRI en estado de reposo.
 \end{itemize}
+
 
 %%=========================================
 
 \section{Estructura}
+
+El presente trabajo se estructura en 5 capítulos. En el primer capítulo se exponen las motivaciones que han llevado al trabajo de investigación detras de esta memoria y el alcance del estudio. Se abordarán las diferentes técnicas de neuroimagen que forman parte del estado del arte actual en los \textit{capítulos 2 y 3} y se exponen las metodologías en el contexto del marco teórico sobre el que se sustenta este estudio, extendiendo aquellas que pueden considerarse principales. Se ofrece una descripción detallada en el \textbf{capítulo 4}, tanto sobre los datos utilizados para la experimentación como las consideraciones éticas necesarias en cualquier estudio susceptible de contener datos sensibles protegidos por la legislación vigente. 
+
+Ya que además del estudio realizado, el presente trabajo pretende ser el inicio de la construcción de una herramienta de ensayos clínicos de fMRI en estado de reposo, el \textit{capítulo 5} trata de describir la estructura del experimento en terminos de ficheros y directorios, el funcionamiento de cada uno de los módulos que ya están desarrollados al término de este trabajo y la configuración de entradas y salidas.
+
+Para concluir se presenta un último capítulo dedicado al estudio de los resultados y las líneas futuras que continuaran en el desarrollo de la herramienta.
+
 %%%=========================================
 %\subsection*{Revisión bibliográfica}
 %

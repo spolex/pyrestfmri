@@ -39,7 +39,7 @@ Las neuronas están densamente conectadas y tienen muchas \hyperref[eda:neurona]
 
 El campo de la neuroimagen incluye el uso directo o indirecto de varias técnicas de imagen estructural o funcional del cerebro.
 
-Los datos anatómicos o \hyperref[eda:anat]{imagen} anatómica describen el tamaño, la forma y la integridad de las estructuras de los tejidos en el cerebro. Se obtiene al realizar una resonancia magnética convencional y nos permite visualizar de manera contrastada la sustancia gris y la sustancia blanca.
+Los datos anatómicos o \hyperref[eda:anat]{imagen anatómica} describen el tamaño, la forma y la integridad de las estructuras de los tejidos en el cerebro. Se obtiene al realizar una resonancia magnética convencional y nos permite visualizar de manera contrastada la sustancia gris y la sustancia blanca.
 
 \begin{figure}[H]
   \centering
@@ -219,6 +219,10 @@ Generalmente se elemina el fondo de la imagen para analizar los \textit{slice} d
 
 \subsection{Segmentación}
 
+La segmentación es el proceso a través del cual el cerebro es dividido en secciones neurológicas. Un ejemplo de segmentación en matería gris, matería blanca y líquido céfalo raquideo lo podemos ver en la imágen \ref{preproc:segmen}
+
+La segmentación se orienta con diversos fines. Se puede utilizar tanto como paso previo en el pipeline a la normalización o extracción del cerebro tanto como máscara para facilitar el análisis de una región de interés.
+ 
 \begin{figure}[H]
   \centering
     \includegraphics[scale=0.5]{img/segmentation.png}
@@ -462,23 +466,43 @@ Una puede ser representada mediante su matriz de conectividad
 	
 En la matriz \ref{preproc:matrix_conect} podemos observar que el nodo 52 y el nodo 3 no están conectados, dicho de otra forma el valor en la matriz es 0. Sin embargo el nodo 79 se encuentra fuertemente conectado con el 3.
 
+La actividad en reposo se puede medir con varios métodos:
+
+\begin{itemize}
+	\item Métodos semilla. Se escoge un voxel o ROI semilla mediante GLM y se determina su conexión con el resto.
+	\item Métodos libres de modelos. Se basan en detectar que voxeles son comunes a determinadas señales en el cerebro. El método ICA utilizado en el presente estudio es el más usado y el que produce mayor consistencia entre experimentos.
+\end{itemize}
+
 \section{Análisis no lineal}
 
- Desde 1994 el modelo lineal general (GLM) se ha convertido en la herramienta principal de análisis fMRI debido a su flexibilidad para incorporar múltiples variables independientes cualitativas y cuantitativas. El propósito del GLM, es predecir la variación de una variable dependiente en terminos de una combinación lineal (suma ponderada) de las variables explicativas. El análisis estandar de datos fMRI se basa en rl snślidid masivo univariante. El modelo se estima para cada voxel de forma independiente.
+ Desde 1994 el modelo lineal general (GLM) se ha convertido en la herramienta principal de análisis fMRI debido a su flexibilidad para incorporar múltiples variables independientes cualitativas y cuantitativas. El propósito del GLM, es predecir la variación de una variable dependiente en terminos de una combinación lineal (suma ponderada) de las variables explicativas. El análisis estandar de datos fMRI se basa en análisis masivo univariante. El modelo se estima para cada voxel de forma independiente.
  
  	\begin{figure}[H]
   		\centering
     	\includegraphics[scale=0.5]{img/glm.png}
   		\caption{}         \label{preproc:glm}
 	\end{figure}
-
-$Y$ es un vector que recoge la señal \textbf{BOLD} de un único voxel en volumenes sucesivos.
 	
- Las imágenes obtenidas por fMRI no son estacionarias pueden ser modeladas con técnicas no lineales dado su bajo coste computacional y por representar soluciones confiables. 
 
--Introducción a las técnicas lineales
--Justificación uso de medidas no lineales
--Uso de técnicas no lineales
-%	1.Metodos no parametricos
-%	2.Metodos parametricos
-%	3.Metodos tiempo frecuencia                                                                                                                                                                         
+$Y$ es un vector que recoge la señal \textbf{BOLD} de un único voxel en volumenes sucesivos.El modelo lineal general se escribe de la siguiente forma matricial:
+
+	$$Y=X \beta+E$$
+Donde:
+\begin{itemize}
+	\item $Y$ es la matriz $(MxN)$ de respuesta del cerebro de todos los voxels e instantes temporales.
+	\item $X$ la matriz de factores predictivos.
+	\item $\beta$ son los coeficientes desconocidos
+\end{itemize}
+
+Sin embargo, el GLM supone que el cerebro es lineal y por tanto un estímulo produciría una respuesta linealmente relacionada. Sin embargo tanto el aprendizaje como el cansancio cambian la respuesta temporal de forma no lineal. Además, dos respuestas solapadas producirían una respuesta igual a la suma de las dos. En general existen pruebas de comportamiento no lineal en \hyperref[glos:mri]{MRI} \cite{tesis}.
+
+La no linealidad es una característica presente en múltiples señales fisiológicas. Para una red neuronal como el cerebro la no linealidad aparece incluso a nivel celular, en el comportamiento de las neuronas.De hecho las imágenes obtenidas por fMRI no son estacionarias y como se indicó anteriormente, las señales producidas por el cerebro no se caracterizan por ser lineales y por tanto pueden ser modeladas con técnicas no lineales dado su bajo coste computacional y por representar soluciones confiables como alternativa al GLM. Analizar estas señales con modelos no lineales puede arrojar información de interesantes.
+
+Los sistemas no lineales se caracterizan, principalmente, debido a que pequeños cambios en las condiciones iniciales llevan a estados muy distintos. Esta evolución irregular e impredecible de muchos sistemas no lineales se ha denominado \textit{caos}. Dicho esto el análisis no lineal está fundamentado en la existencia de estos sistemas caóticos, no periódicos y sensibles a las condiciones iniciales.
+
+Las señales biomédicas obtenidas a partir de la imagen fMRI tienen lugar en el dominio del tiempo. En el presente estudió se calcula como uno de los parámetros la \textit{Entropía espectral de Shannon}, para cada una de las regiones del Atlas funcional, extraída mediante la función de densidad de Potencia (\hyperref[glos:psd]{PSD}). Para obtener la PSD existen varios métodos:
+\begin{itemize}
+\item Métodos paramétricos: basados en la DFT.
+\item Métodos no parámetricos: basados en métodos ARMA y variantes.
+\item Métodos de tiempo frecuencia: asumen la no estacionariedad de las señales.
+\end{itemize}
