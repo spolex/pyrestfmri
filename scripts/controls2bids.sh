@@ -1,5 +1,5 @@
 #environment variables
-INPUT_PATH=$HOME/datos-dicom
+INPUT_PATH=$HOME/datos-niix
 OUTPUT_PATH=$HOME/datos-niix
 #SUBJS="$(ls "$INPUT_PATH" | grep C0* | tr '\n' ' ')"
 SUBJS=( C021 C024 )
