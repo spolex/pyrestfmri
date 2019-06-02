@@ -20,7 +20,8 @@
         "working_dir": "/home/elekin/datos-niix", 
         "noise_components": "compcor/noise_components.txt"
       }, 
-      "msdl_ts_file": "msdl/masker_extracted_ts.csv", 
+      "msdl_ts_file": "msdl/masker_extracted_ts.csv",
+      "cbl_ts_file": "cbl/masker_extracted_ts.csv",
       "_comment": "", 
       "r_extractor": {
         "log": "log/region_extractor_dev.log"
@@ -30,7 +31,8 @@
       "brain_atlas": {
         "components_img_1": "/home/elekin/dicom-niix/preproc/et/dict/12_resting_state_all.nii.gz", 
         "log": "log/brain_atlas_extractor_dev.log", 
-        "components_img": "/home/elekin/dicom-niix/preproc/et_/canica/6_resting_state_all.nii.gz"
+        "components_img": "/home/elekin/dicom-niix/preproc/et_/canica/6_resting_state_all.nii.gz",
+        "cerebelo": "/home/hadoop/datos-niix/templates/Buckner2011_7Networks_MNI152_FreeSurferConformed1mm_LooseMask.nii.gz"
       }, 
       "entropy": {
         "_comment": "", 
