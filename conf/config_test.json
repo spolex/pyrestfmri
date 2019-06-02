@@ -4,9 +4,7 @@
     "preproc_log_dir": "/home/elekin/pyrestfmri/log", 
     "log_level": "DEBUG", 
     "subjects_id": [
-"T071",
-"T021",
-"T003"
+"T004"
     ], 
     "files_path": {
       "preproc": {
