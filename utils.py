@@ -7,7 +7,7 @@ Created on Tue Aug 29 23:07:46 2017
 """
 from os import path as op
 from os import makedirs as om
-from itertools import chain, imap
+from itertools import chain
 import json
 import logging
 from nilearn import plotting,image
@@ -41,7 +41,7 @@ def update_experiment(config, filename):
         return -1
 
 def flatmap(f, items):
-  return chain.from_iterable(imap(f, items))
+  return chain.from_iterable(map(f, items))
 
 def create_dir(directory):
   if not op.exists(directory):

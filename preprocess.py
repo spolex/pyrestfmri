@@ -22,11 +22,11 @@ from utils import experiment_config
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
-parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config.json", nargs='?', default="conf/config_test.json")
 parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot translation and rotations movement and save .par files")
-parser.add_argument("-f","--fwhm", type=str, help="Smooth filter's threshold list. [5] by default", nargs='?', default=None)
+parser.add_argument("-f","--fwhm", type=str, help="Smooth filter's threshold list. [5] by default", nargs='?', default="[5]")
 parser.add_argument("-b","--brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
-parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=1)
+parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=2)
 parser.add_argument("-i","--highpass", type=float, help="high pass filter, default 0.01", nargs='?', default=0.01)
 parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default 0.08", nargs='?', default=0.08)
 
@@ -72,8 +72,8 @@ mc_plots=['rotations','translations'] if args.move_plot else None
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
 
 # SelectFiles - to grab the data (alternativ to DataGrabber)
-anat_file = opj('{subject_id}', 'mprage.nii.gz')
-func_file = opj('{subject_id}', 'f1.nii.gz')
+anat_file = opj('{subject_id}', 'sub-{subject_id}','ses-1','anat','sub-{subject_id}_ses-1_acq-highres_t1w.nii.gz')
+func_file = opj('{subject_id}', 'sub-{subject_id}','ses-1','func','sub-{subject_id}_ses-1_task-rest_bold.nii.gz')
 
 templates = {'anat': anat_file,
              'func': func_file}
@@ -88,7 +88,7 @@ substitutions = [('_subject_id', ''),
                  ('_session_id_', ''),
                  ('_task-flanker', ''),
                  ('_mcf.nii_mean_reg', '_mean'),
-                 ('.nii.par', '.par'),
+                 ('.nii.par', '.par')
                  ]
 subjFolders = [('%s_%s/' % (sess, sub), '%s/%s' % (sub, sess))
                for sess in session_list
@@ -100,6 +100,7 @@ subjFolders += [('%s%s_' % (sess, sub), '')
                 for sess in session_list
                 for sub in subject_list]
 substitutions.extend(subjFolders)
+
 datasink.inputs.substitutions = substitutions
 
 # Select number of volumes
@@ -110,7 +111,7 @@ trim.inputs.end_index=161 # get only until volume 162
 # Brain extraction:
 bet = Node(interface=BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
-bet.inputs.reduce_bias = True
+#bet.inputs.reduce_bias = True
 
 
 # Slice Timing correction
@@ -187,7 +188,7 @@ applyTransFunc = Node(ApplyTransforms(), iterfield=['input_image', 'transforms']
 applyTransFunc.inputs.input_image_type = 3
 applyTransFunc.inputs.interpolation = 'BSpline'
 applyTransFunc.inputs.invert_transform_flags = [False, False]
-applyTransFunc.inputs.terminal_output = 'file'
+#applyTransFunc.inputs.terminal_output = 'file'
 
 # Remove signal of non interest
 tsnr = Node(confounds.TSNR(regress_poly=2), name='tsnr')
@@ -290,11 +291,11 @@ preproc.write_graph(graph2use='colored', format='png', simple_form=True)
 
 # Visualize the graph
 from IPython.display import Image
-Image(filename=opj(preproc.base_dir, 'preproc', 'graph.dot.png'))
+Image(filename=opj(preproc.base_dir, 'preproc', 'graph.png'))
 
 # Visualize the detailed graph
 preproc.write_graph(graph2use='flat', format='png', simple_form=True)
-Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.dot.png'))
+Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
 
 
 
