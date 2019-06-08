@@ -4,9 +4,7 @@
     "preproc_log_dir": "/home/elekin/pyrestfmri/log", 
     "log_level": "DEBUG", 
     "subjects_id": [
-"T071",
-"T021",
-"T003"
+"T004"
     ], 
     "files_path": {
       "preproc": {
@@ -39,7 +37,7 @@
       }, 
       "ts_file": "dict_extracted_ts.csv", 
       "root": "/", 
-      "preproc_data_dir": "/home/elekin/dicom-niix/preproc"
+      "preproc_data_dir": "/home/elekin/dicom-niix"
     }, 
     "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
     "labels": [

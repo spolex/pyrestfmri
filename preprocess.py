@@ -188,7 +188,7 @@ applyTransFunc = Node(ApplyTransforms(), iterfield=['input_image', 'transforms']
 applyTransFunc.inputs.input_image_type = 3
 applyTransFunc.inputs.interpolation = 'BSpline'
 applyTransFunc.inputs.invert_transform_flags = [False, False]
-applyTransFunc.inputs.terminal_output = 'file'
+#applyTransFunc.inputs.terminal_output = 'file'
 
 # Remove signal of non interest
 tsnr = Node(confounds.TSNR(regress_poly=2), name='tsnr')
