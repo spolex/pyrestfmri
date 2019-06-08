@@ -19,3 +19,4 @@ apuntes/
 *.lof
 *.lot
 *crash*
+notebooks/.ipynb_checkpoints
