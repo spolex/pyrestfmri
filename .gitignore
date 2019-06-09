@@ -20,3 +20,6 @@ apuntes/
 *.lot
 *crash*
 notebooks/.ipynb_checkpoints
+notebooks/__pycache_
+notebooks/*.npz
+
