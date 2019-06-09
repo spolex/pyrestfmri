@@ -64,50 +64,19 @@ func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,s
 confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session),sessions_subjects_dir))
 
 # Loading atlas image stored in 'maps'
-atlas_filename = experiment["files_path"]["brain_atlas"]["cerebellum"]
+cbl_img = experiment["files_path"]["brain_atlas"]["cerebellum"]
 
-masker = NiftiMapsMasker(low_pass=args.lowpass, high_pass=args.highpass, t_r=TR,
-                           maps_img=atlas_filename, standardize=args.standarize,
-                           memory='nilearn_cache', verbose=args.verbose, smoothing_fwhm=args.fwhm)
-masker.fit()
-masker_extracted_img = masker.maps_img_
+#Region extracted
+extractor = RegionExtractor(cbl_img, verbose=args.verbose, thresholding_strategy='ratio_n_voxels',
+                            extractor='local_regions', memory="nilearn_cache", memory_level=2,
+                            t_r=TR, high_pass=args.highpass, low_pass=args.lowpass, standardize=args.standarize,
+                            min_region_size=args.region_size)
+
+extractor.fit()
+# Extracted regions are stored in regions_img_
+regions_extracted_img = extractor.regions_img_
 # Total number of regions extracted
-masker_n_regions_extracted = masker_extracted_img.shape[-1]
+n_regions_extracted = regions_extracted_img.shape[-1]
+# Each region index is stored in index_
+regions_index = extractor.index_
 
-# Visualization of region extraction results
-  
-title = ('%d regions are extracted from mdls atlas'
-        % (masker_n_regions_extracted))
-plotting.plot_prob_atlas(masker.maps_img, view_type='filled_contours',
-                            title=title,
-                           output_file=op.join(cbl_dir,"_func_map_ica_"+str(masker_n_regions_extracted)+".png")
-                           )
-
-connectome_measure = ConnectivityMeasure(kind='correlation')
-masker_correlations = []
-for filename, confound in zip(func_filenames, confounds_components):
-    masker_timeseries_each_subject = masker.transform(filename, confounds=confound)
-    filename = '/'.join(filename.split('/')[0:-1]) + '/cbl'
-    create_dir(filename)
-    np.savetxt(filename + "/masker_extracted_ts.csv", masker_timeseries_each_subject, delimiter=",")
-    fig = plt.figure()
-    plt.plot(masker_timeseries_each_subject)
-    plt.xlabel('')
-    plt.ylabel('')
-    fig.savefig(filename + "/masker_extracted_ts" + ".png")
-    plt.close()
-    # call fit_transform from ConnectivityMeasure object
-    masker_correlation = connectome_measure.fit_transform([masker_timeseries_each_subject])
-    # saving each subject correlation to correlations
-    masker_correlations.append(masker_correlation)
-#
-## Mean of all correlations
-# masker_mean_correlations = np.mean(masker_correlations, axis=0).reshape(n_regions_extracted,
-#                                                          n_regions_extracted)
-# In[]
-# Mean of all correlations
-mask_mean_correlations = np.mean(masker_correlations, axis=0).reshape(len(labels),
-                                                                      len(labels))
-experiment["files_path"]["cbl_ts_file"] = "cbl/masker_extracted_ts.csv"
-config["experiment"]=experiment
-update_experiment(config, args.config)
