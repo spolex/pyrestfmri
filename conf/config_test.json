@@ -10,7 +10,7 @@
       "working_dir": "/home/elekin",
       "preproc": {
         "data_path": "/home/elekin/datos",
-        "output": "/home/results/output",
+        "output": "/home/elekin/results/output",
         "_comment": "", 
         "register": {
           "_comment": "", 
