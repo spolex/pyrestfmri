@@ -17,7 +17,7 @@ import numpy as np
 
 parser = argparse.ArgumentParser(description="Functional Brain Atlas extractor tool")
 
-parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
 parser.add_argument("-f","--canica", action="store_true", help="Build CanICA based functional brain atlas. default false")
 parser.add_argument("-d","--dictlearn", action="store_true", help="Build Dictlearn based functional brain atlas. default true")
 parser.add_argument("-n","--n_components", type=int, help="Number of components to build functional networks, default 20", nargs='?', default=20)

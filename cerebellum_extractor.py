@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser(description="Functional atlas based region extractor")
-parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
 parser.add_argument("-i","--highpass", type=float, help="high pass filter, default none", nargs='?', default=None)
 parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default none", nargs='?', default=None)
 parser.add_argument("-v","--verbose", type=int, help="verbose leevel, default 10", nargs='?', default=10)
