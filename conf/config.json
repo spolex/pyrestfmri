@@ -1,11 +1,11 @@
 {
   "_comment": "Configuration file must be contain all parameters and file paths for the experiment", 
   "experiment": {
-    "preproc_log_dir": "Z:/elekin/02-RESULTADOS/02-PREPROCESS/log",
-    "log_level": "DEBUG", 
+    "preproc_log_dir": "results/02-PREPROCESS/log",
+    "log_level": "DEBUG",
     "subjects_id": [
     "C021",
-      "C024",
+    "C024",
 	"C026",
 	"C034",
 	"C045",
@@ -106,43 +106,44 @@
 	"T079",
 	"T080",
 	"T081"
-    ], 
+    ],
     "files_path": {
+      "working_dir": "/home/elekin",
       "preproc": {
-        "output": "Z:/elekin/02-RESULTADOS/02-PREPROCESS/output",
-        "_comment": "", 
+        "data_path": "/home/elekin/datos",
+        "output": "results/output",
+        "_comment": "",
         "register": {
-          "_comment": "", 
-          "template_3mm": "E:/04-DATASOURCES/01-PHD/99_TEMPLATES/MNI152_T1_3mm_brain.nii.gz",
-          "template": "E:/04-DATASOURCES/01-PHD/99_TEMPLATES/MNI152_T1_1mm_brain.nii.gz"
-        }, 
-        "working_dir": "Z:/elekin/02-RESULTADOS",
-        "noise_components": "compcor/noise_components.txt"
-      }, 
-      "msdl_ts_file": "msdl/masker_extracted_ts.csv", 
-      "_comment": "", 
+          "_comment": "",
+          "template_3mm": "datos/TEMPLATES/MNI152_T1_3mm_brain.nii.gz",
+          "template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz"
+        },
+        "noise_components": "results/compcor/noise_components.txt"
+      },
+      "msdl_ts_file": "results/msdl/masker_extracted_ts.csv",
+      "_comment": "",
       "r_extractor": {
-        "log": "log/region_extractor_dev.log"
-      }, 
-      "masker_ts_file": "dictmasker_extracted_ts.csv", 
-      "ts_image": "remove_noise/detrend_regfilt.nii.gz", 
+        "log": "results/log/region_extractor_dev.log"
+      },
+      "masker_ts_file": "results/dictmasker_extracted_ts.csv",
+      "ts_image": "results/remove_noise/detrend_regfilt.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
-        "log": "log/brain_atlas_extractor_dev.log", 
+        "log": "results/log/brain_atlas_extractor_dev.log",
         "components_img": ""
-      }, 
+      },
       "entropy": {
-        "_comment": "", 
-        "log": "Z:/elekin/02-RESULTADOS/02-PREPROCESS/log/entropy_log_dev.log",
+        "_comment": "",
+        "log": "results/log/entropy_log_dev.log",
         "outdir": "entropy"
-      }, 
-      "ts_file": "dict_extracted_ts.csv", 
-      "root": "/", 
-      "preproc_data_dir": "Z:/elekin/02-RESULTADOS/02-PREPROCESS/output"
-    }, 
-    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
+      },
+      "ts_file": "results/dict_extracted_ts.csv",
+      "root": "/",
+      "preproc_data_dir": "results/output/preproc"
+    },
+    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths",
     "labels": [
-      1
+      0
     ], 
     "#components": 20, 
     "split": "et", 
