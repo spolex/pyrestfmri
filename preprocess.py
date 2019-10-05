@@ -73,13 +73,15 @@ mc_plots=['rotations','translations'] if args.move_plot else None
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
 
 # SelectFiles - to grab the data (alternativ to DataGrabber)
-anat_file = opj('{subject_id}', 'sub-{subject_id}','ses-1','anat','sub-{subject_id}_ses-1_acq-highres_t1w.nii.gz')
-func_file = opj('{subject_id}', 'sub-{subject_id}','ses-1','func','sub-{subject_id}_ses-1_task-rest_bold.nii.gz')
+#anat_file = opj('{subject_id}', 'sub-{subject_id}','ses-1','anat','sub-{subject_id}_ses-1_acq-highres_t1w.nii.gz')
+#func_file = opj('{subject_id}', 'sub-{subject_id}','ses-1','func','sub-{subject_id}_ses-1_task-rest_bold.nii.gz')
+anat_file = opj('{subject_id}', '3D.nii.gz.gz')
+func_file = opj('{subject_id}', 'FMRI.nii.gz')
 
 templates = {'anat': anat_file,
              'func': func_file}
 
-selectfiles = Node(SelectFiles(templates,base_directory=base_dir),name="selectfiles")
+selectfiles = Node(SelectFiles(templates,base_directory=data_dir),name="selectfiles")
 
 # Datasink - creates output folder for important outputs
 datasink = Node(DataSink(base_directory=experiment_dir,container=output_dir),name="datasink")
