@@ -47,7 +47,8 @@ logging.update_logging(config)
 
 # set working dirs
 experiment_dir = experiment["files_path"]["root"]
-base_dir = experiment["files_path"]["preproc"]["working_dir"]
+base_dir = experiment["files_path"]["working_dir"]
+data_dir = experiment["files_path"]["preproc"]["data_path"]
 output_dir = experiment["files_path"]["preproc"]["output"]
 
 
