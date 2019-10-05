@@ -15,7 +15,7 @@
           "template_3mm": "datos/TEMPLATES/MNI152_T1_3mm_brain.nii.gz",
           "template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz"
         }, 
-        "working_dir": "/home/elekin",
+        "working_dir": "/home/elekin/datos",
         "noise_components": "results/compcor/noise_components.txt"
       }, 
       "msdl_ts_file": "results/msdl/masker_extracted_ts.csv",
