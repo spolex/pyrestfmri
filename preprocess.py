@@ -236,7 +236,7 @@ infosource.iterables = [('subject_id', subject_list),
 ############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
 preproc = Workflow(name='preproc')
-preproc.base_dir = base_dir
+preproc.base_dir = output_dir
 
 # Connect all components of the preprocessing workflow
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id' )
