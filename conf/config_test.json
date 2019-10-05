@@ -10,7 +10,7 @@
       "working_dir": "/home/elekin",
       "preproc": {
         "data_path": "/home/elekin/datos",
-        "output": "/home/results/output",
+        "output": "output",
         "_comment": "", 
         "register": {
           "_comment": "", 
@@ -37,8 +37,8 @@
         "outdir": "entropy"
       }, 
       "ts_file": "results/dict_extracted_ts.csv",
-      "root": "/", 
-      "preproc_data_dir": "results/output/preproc"
+      "root": "/home/results",
+      "preproc_data_dir": "/home/results/output/preproc"
     }, 
     "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
     "labels": [
