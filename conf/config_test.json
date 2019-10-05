@@ -12,7 +12,7 @@
         "_comment": "", 
         "register": {
           "_comment": "", 
-          "template_3mm": "/datos/TEMPLATES/MNI152_T1_3mm_brain.nii.gz",
+          "template_3mm": "datos/TEMPLATES/MNI152_T1_3mm_brain.nii.gz",
           "template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz"
         }, 
         "working_dir": "/home/elekin",
