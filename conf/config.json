@@ -140,7 +140,7 @@
       "root": "/home/results",
       "preproc_data_dir": "/home/results/output/preproc"
     },
-    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths",
+    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions and subjects id and nedded directory paths",
     "labels": [
       0
     ], 
