@@ -1,7 +1,7 @@
 node{
     def img
     def cont
-    docker.withServer('tcp://k8.eastonlab.org:2376') {
+    docker.withServer(${SERVER}) {
         stage ("Get image"){
             img = docker.image("spolex/pyrestfmri:0.1")
          }
