@@ -3,7 +3,7 @@ node{
     def cont
     docker.withServer('tcp://k8.eastonlab.org:2376') {
     stage ("Get image"){
-        img = docker.image("spolex/pyrestfmri:1.0")
+        img = docker.image("spolex/pyrestfmri:0.1")
     }
     stage ("Run pyrestfmri container"){
         cont img.run('--rm --name pyrestfmri -d \
