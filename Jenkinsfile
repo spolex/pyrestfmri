@@ -1,6 +1,12 @@
+properties([pipelineTriggers([githubPush()])])
+
 node{
     def img
     docker.withServer("${SERVER}") {
+
+        stage ('Checkout'){
+            git branch: 'develop', url: 'https://github.com/spolex/pyrestfmri'
+        }
 
         stage ("Get image"){
             img = docker.image("spolex/pyrestfmri:0.1")
