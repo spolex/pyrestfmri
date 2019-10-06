@@ -8,7 +8,7 @@ node{
         }
 
         stage ("Get image"){
-            img = docker.image("spolex/pyrestfmri:0.1")
+            img = docker.image("spolex/pyrestfmri:latest")
          }
 
         stage ("Run pyrestfmri container"){
