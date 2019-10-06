@@ -1,3 +1,5 @@
+properties([pipelineTriggers([githubPush()])])
+
 node{
     def img
     def cont
