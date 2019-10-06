@@ -1,4 +1,5 @@
 properties([pipelineTriggers([githubPush()])])
+
 node{
     def img
     docker.withServer("${SERVER}") {
