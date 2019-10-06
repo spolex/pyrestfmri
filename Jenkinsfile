@@ -12,9 +12,10 @@ node{
          }
 
         stage ("Run pyrestfmri container"){
-            img.run('--name pyrestfmri -v /home/hadoop/nfs-storage/00-DATASOURCES/00-FMRI:/home/elekin/datos \
-            -v /home/hadoop/pyrestfmri:/home/elekin/pyrestfmri  \
-            -v /home/hadoop/nfs-storage/02-RESULTADOS:/home/elekin/results','python /home/elekin/pyrestfmri/preprocess.py -c /home/elekin/pyrestfmri/conf/${CONFIG_FILE} -p ${PARALLELISM}')
+            img.run('--name pyrestfmri -v ${DATA_PATH}:/home/elekin/datos \
+            -v ${APP_PATH}:/home/elekin/pyrestfmri  \
+            -v ${RESULTS}:/home/elekin/results', \
+            'python /home/elekin/pyrestfmri/${APP} -c /home/elekin/pyrestfmri/conf/${CONFIG_FILE} -p ${PARALLELISM}')
          }
 
     }
