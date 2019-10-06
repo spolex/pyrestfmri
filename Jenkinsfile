@@ -13,4 +13,5 @@ node{
         python /home/elekin/pyrestfmri/preprocess.py -c /home/elekin/pyrestfmri/conf/config_test.json -p 15'
         )
     }
+    }
 }
