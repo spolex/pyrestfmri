@@ -2,7 +2,6 @@ properties([pipelineTriggers([githubPush()])])
 
 node{
     def img
-    def cont
     docker.withServer("${SERVER}") {
         stage ("Get image"){
             img = docker.image("spolex/pyrestfmri:0.1")
