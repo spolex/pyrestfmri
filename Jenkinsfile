@@ -9,7 +9,7 @@ node{
         img.inside('--name pyrestfmri -v /home/hadoop/nfs-storage/00-DATASOURCES/00-FMRI:/home/elekin/datos \
         -v /home/hadoop/pyrestfmri:/home/elekin/pyrestfmri  \
         -v /home/hadoop/nfs-storage/02-RESULTADOS:/home/elekin/results'){
-            sh 'activate elekin'
+            sh 'source activate elekin'
             sh 'python /home/elekin/pyrestfmri/preprocess.py -c /home/elekin/pyrestfmri/conf/config_test.json -p 15'
         }
     }
