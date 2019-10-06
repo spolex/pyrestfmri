@@ -16,5 +16,6 @@ node{
             -v /home/hadoop/pyrestfmri:/home/elekin/pyrestfmri  \
             -v /home/hadoop/nfs-storage/02-RESULTADOS:/home/elekin/results','python /home/elekin/pyrestfmri/preprocess.py -c /home/elekin/pyrestfmri/conf/config_test.json -p ${PARALLELISM}')
          }
+
     }
 }
