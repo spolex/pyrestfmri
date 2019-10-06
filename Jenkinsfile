@@ -10,6 +10,7 @@ node{
         stage ("Get image"){
             img = docker.image("spolex/pyrestfmri:0.1")
          }
+
         stage ("Run pyrestfmri container"){
             img.withRun('--name pyrestfmri -v /home/hadoop/nfs-storage/00-DATASOURCES/00-FMRI:/home/elekin/datos \
             -v /home/hadoop/pyrestfmri:/home/elekin/pyrestfmri  \
