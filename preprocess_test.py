@@ -21,10 +21,7 @@ parser.add_argument("-c","--config", type=str, help="Configuration file path, de
 parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot translation and rotations movement and save .par files")
 parser.add_argument("-f","--fwhm", type=str, help="Smooth filter's threshold list. [5] by default", nargs='?', default="[5]")
 parser.add_argument("-b","--brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
-parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=2)
-parser.add_argument("-i","--highpass", type=float, help="high pass filter, default 0.01", nargs='?', default=0.01)
-parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default 0.08", nargs='?', default=0.08)
-
+parser.add_argument("-p","--parallelism", type=int, help="Multiproc parallelism configuration, default no parallelism", nargs='?', default=16)
 args = parser.parse_args()
 
 #load experiment configuration
@@ -86,6 +83,7 @@ detrend.inputs.args = '-polort 2'
 # Smooth - image smoothing
 # smoothe filters threshold
 fwhm = eval(args.fwhm) or [8]
+#treshold
 brightness_threshold = args.brightness_threshold or 1000.0
 smooth = Node(SUSAN(), name="smooth")
 smooth.iterables = ("fwhm", fwhm)
@@ -151,64 +149,7 @@ if args.move_plot:
     plotter.inputs.in_source='fsl'
     plotter.iterables = ('plot_type',mc_plots)
 
-# coregistration step based on affine transformation using ANTs
-coreg = Node(Registration(), name='CoregAnts')
-coreg.inputs.output_transform_prefix = 'func2highres'
-coreg.inputs.output_warped_image = 'func2highres.nii.gz'
-coreg.inputs.output_transform_prefix = "func2highres_"
-coreg.inputs.transforms = ['Rigid', 'Affine']
-coreg.inputs.transform_parameters = [(0.1,), (0.1,)]
-coreg.inputs.number_of_iterations = [[100, 100]]*3
-coreg.inputs.dimension = 3
-coreg.inputs.write_composite_transform = True
-coreg.inputs.collapse_output_transforms = False
-coreg.inputs.metric = ['Mattes'] * 2
-coreg.inputs.metric_weight = [1] * 2
-coreg.inputs.radius_or_number_of_bins = [32] * 2
-coreg.inputs.sampling_strategy = ['Regular'] * 2
-coreg.inputs.sampling_percentage = [0.3] * 2
-coreg.inputs.convergence_threshold = [1.e-8] * 2
-coreg.inputs.convergence_window_size = [20] * 2
-coreg.inputs.smoothing_sigmas = [[4, 2]] * 2
-coreg.inputs.sigma_units = ['vox'] * 4
-coreg.inputs.shrink_factors = [[6, 4]] + [[3, 2]]
-coreg.inputs.use_estimate_learning_rate_once = [True] * 2
-coreg.inputs.use_histogram_matching = [False] * 2
-coreg.inputs.initial_moving_transform_com = True
-coreg.inputs.verbose = True
-
-
-# registration or normalization step based on symmetric diffeomorphic image registration (SyN) using ANTs
-reg = Node(Registration(), name='NormalizationAnts')
-reg.inputs.output_transform_prefix = 'highres2template'
-reg.inputs.output_warped_image = 'highres2template.nii.gz'
-reg.inputs.output_transform_prefix = "highres2template_"
-reg.inputs.initial_moving_transform_com = False
-reg.inputs.transforms = ['Affine', 'SyN']
-reg.inputs.transform_parameters = [(2.0,), (0.25, 3.0, 0.0)]
-reg.inputs.number_of_iterations = [[1500, 200], [100, 50, 30]]
-reg.inputs.dimension = 3
-reg.inputs.write_composite_transform = True
-reg.inputs.collapse_output_transforms = True
-reg.inputs.initial_moving_transform_com = True
-reg.inputs.metric = ['Mattes'] * 2
-reg.inputs.metric_weight = [1] * 2
-reg.inputs.radius_or_number_of_bins = [32] * 2
-reg.inputs.sampling_strategy = ['Random', None]
-reg.inputs.sampling_percentage = [0.05, None]
-reg.inputs.convergence_threshold = [1.e-8, 1.e-9]
-reg.inputs.convergence_window_size = [20] * 2
-reg.inputs.smoothing_sigmas = [[1,0], [2,1,0]]
-reg.inputs.sigma_units = ['vox'] * 2
-reg.inputs.shrink_factors = [[2,1], [3,2,1]]
-reg.inputs.use_estimate_learning_rate_once = [True] * 2
-reg.inputs.use_histogram_matching = [True] * 2
-reg.inputs.verbose = True
-
- # combine transforms
-merge = Node(Merge(2), iterfield=['in2'], name='mergexfm')
-
-# apply the combined transform 
+# apply the combined transform
 applyTransFunc = Node(ApplyTransforms(), iterfield=['input_image', 'transforms'],name='applyTransFunc')
 applyTransFunc.inputs.input_image_type = 3
 applyTransFunc.inputs.interpolation = 'BSpline'
@@ -217,61 +158,28 @@ applyTransFunc.inputs.invert_transform_flags = [False, False]
 
 ############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
-############################# PIPELINE #################################################################################
-# Create a preprocessing workflow
 preproc = Workflow(name='preproc')
 preproc.base_dir = output_dir
 
-# Connect all components of the preprocessing workflow
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id')
-preproc.connect(selectfiles, 'func', trim, 'in_file')
+
 preproc.connect(selectfiles, 'anat', bet, 'in_file')
+
+preproc.connect(selectfiles, 'func', trim, 'in_file')
 preproc.connect(trim, 'out_file', slice_timing_correction, 'in_file')
 preproc.connect(slice_timing_correction, 'slice_time_corrected_file', mcflirt, 'in_file')
+preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
+preproc.connect(mcflirt, 'par_file', datasink, 'preproc.@par')
 if args.move_plot:
-    preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
-# func2highres
-preproc.connect(bet, 'out_file', coreg, 'fixed_image')
-preproc.connect(mcflirt, 'mean_img', coreg, 'moving_image')
-# anat2standard
-preproc.connect(bet, 'out_file', reg, 'moving_image')
-preproc.connect(infosource, 'Template', reg, 'fixed_image')
+    preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
 # get transform of functional image to template and apply it to the functional
-# images to template_3mm (same space as
+#images to template_3mm (same space as
 # template)
 preproc.connect(infosource, 'Template_3mm', applyTransFunc, 'reference_image')
-preproc.connect(mcflirt, 'out_file', applyTransFunc, 'input_image')
-
-preproc.connect(coreg, 'composite_transform', merge, 'in1')
-preproc.connect(reg, 'composite_transform', merge, 'in2')
-preproc.connect(merge, 'out', applyTransFunc, 'transforms')
-# artifact detection
-preproc.connect(applyTransFunc, 'output_image', tsnr, 'in_file')
-preproc.connect(tsnr, 'stddev_file', threshold_stddev, 'in_file')
-
-preproc.connect(tsnr, 'stddev_file', getthresh, 'in_file')
-preproc.connect(getthresh, 'out_stat', threshold_stddev, 'thresh')
-preproc.connect(applyTransFunc, 'output_image', compcor, 'realigned_file')
-
-preproc.connect(threshold_stddev, 'out_file', compcor, 'mask_files')
-preproc.connect(tsnr, 'detrended_file', remove_noise, 'in_file')
-preproc.connect(compcor, 'components_file', remove_file_header, 'in_file')
-preproc.connect(remove_file_header, 'out_file', remove_noise, 'design_file')
-# bandpass filter
-preproc.connect(remove_noise, 'out_file', bandpass_filter, 'in_file')
-# smooth
-preproc.connect(bandpass_filter, 'out_file', smooth, 'in_file')
-# datasink
-preproc.connect(mcflirt, 'par_file', datasink, 'preproc.@par')
-preproc.connect(smooth, 'smoothed_file', datasink, 'preproc.@smooth')
-preproc.connect(bandpass_filter, 'out_file', datasink, 'preproc.@bandpass_filter')
-preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
+preproc.connect(mcflirt,'out_file', applyTransFunc, 'input_image')
 if args.move_plot:
     preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
 
-# set up templates to register
-preproc.inputs.infosource.Template = opj(data_dir, experiment["files_path"]["preproc"]["register"]["template"])
-preproc.inputs.infosource.Template_3mm = opj(data_dir, experiment["files_path"]["preproc"]["register"]["template_3mm"])
 
 # Create preproc output graph
 preproc.write_graph(graph2use='colored', format='png', simple_form=True)
