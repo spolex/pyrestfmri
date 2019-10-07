@@ -139,6 +139,9 @@ if args.move_plot:
 # template)
 preproc.connect(infosource, 'Template_3mm', applyTransFunc, 'reference_image')
 preproc.connect(mcflirt,'out_file', applyTransFunc, 'input_image')
+if args.move_plot:
+    preproc.connect(plotter, 'out_file', datasink, 'preproc.@motion_plots')
+
 
 # Create preproc output graph
 preproc.write_graph(graph2use='colored', format='png', simple_form=True)
