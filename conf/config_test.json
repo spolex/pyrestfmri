@@ -1,47 +1,48 @@
 {
   "_comment": "Configuration file must be contain all parameters and file paths for the experiment", 
   "experiment": {
-    "preproc_log_dir": "/home/elekin/pyrestfmri/log", 
+    "preproc_log_dir": "results/02-PREPROCESS/log",
     "log_level": "DEBUG", 
     "subjects_id": [
-      "T004"
+    "C021"
     ], 
     "files_path": {
+      "working_dir": "/home/elekin",
       "preproc": {
-        "output": "/home/elekin/datos-niix/preproc", 
+        "data_path": "/home/elekin/datos",
+        "output": "/home/elekin/results/output",
         "_comment": "", 
         "register": {
           "_comment": "", 
-          "template_3mm": "/home/elekin/datos-niix/templates/MNI152_T1_3mm_brain.nii.gz", 
-          "template": "/home/elekin/datos-niix/templates/MNI152_T1_1mm_brain.nii.gz"
-        }, 
-        "working_dir": "/home/elekin/datos-niix", 
-        "noise_components": "compcor/noise_components.txt"
+          "template_3mm": "datos/TEMPLATES/MNI152_T1_3mm_brain.nii.gz",
+          "template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz"
+        },
+        "noise_components": "results/compcor/noise_components.txt"
       }, 
-      "msdl_ts_file": "msdl/masker_extracted_ts.csv", 
+      "msdl_ts_file": "results/msdl/masker_extracted_ts.csv",
       "_comment": "", 
       "r_extractor": {
-        "log": "log/region_extractor_dev.log"
+        "log": "results/log/region_extractor_dev.log"
       }, 
-      "masker_ts_file": "dictmasker_extracted_ts.csv", 
-      "ts_image": "remove_noise/detrend_regfilt.nii.gz", 
+      "masker_ts_file": "results/dictmasker_extracted_ts.csv",
+      "ts_image": "results/remove_noise/detrend_regfilt.nii.gz",
       "brain_atlas": {
-        "components_img_1": "/home/elekin/dicom-niix/preproc/et/dict/12_resting_state_all.nii.gz", 
-        "log": "log/brain_atlas_extractor_dev.log", 
-        "components_img": "/home/elekin/dicom-niix/preproc/et_/canica/6_resting_state_all.nii.gz"
+        "components_img_1": "",
+        "log": "results/log/brain_atlas_extractor_dev.log",
+        "components_img": ""
       }, 
       "entropy": {
         "_comment": "", 
-        "log": "/home/elekin/pyrestfmri/log/entropy_log_dev.log", 
+        "log": "results/log/entropy_log_dev.log",
         "outdir": "entropy"
       }, 
-      "ts_file": "dict_extracted_ts.csv", 
-      "root": "/", 
-      "preproc_data_dir": "/home/elekin/dicom-niix/preproc"
+      "ts_file": "results/dict_extracted_ts.csv",
+      "root": "/home/results",
+      "preproc_data_dir": "/home/results/output/preproc"
     }, 
     "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
     "labels": [
-      1
+      0
     ], 
     "#components": 20, 
     "split": "et", 
