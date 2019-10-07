@@ -1,9 +1,81 @@
 from nipype.interfaces import fsl
+from os.path import join as opj
+from nipype.pipeline.engine import Workflow, Node
+from nipype.interfaces.io import SelectFiles, DataSink
+from nipype.interfaces.utility import IdentityInterface
+from nipype.interfaces import fsl
+
 
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
 
-skullstrip = fsl.BET()
-skullstrip.inputs.in_file = "/home/elekin/datos/C024/mprage.nii.gz"
-skullstrip.inputs.out_file = "/home/elekin/results/output/preproc/skull_mprage.nii.gz"
-skullstrip.inputs.frac = 0.5
-res = skullstrip.run()
+subject_list=["C024"]
+session_list=[1]
+
+anat_file = opj('{subject_id}', 'mprage.nii.gz')
+func_file = opj('{subject_id}', 'f1.nii.gz')
+
+templates = {'anat': anat_file,
+             'func': func_file}
+
+home = "/home/elekin"
+data_dir = "/home/elekin/datos"
+output_dir = "results/output/preproc"
+
+# Infosource - a function free node to iterate over the list of subject names
+# fetch input
+infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Template','Template_3mm']),
+                  name="infosource")
+infosource.iterables = [('subject_id', subject_list),
+                        ('session_id', session_list)]
+
+selectfiles = Node(SelectFiles(templates, base_directory=data_dir), name="selectfiles")
+
+# Datasink - creates output folder for important outputs
+datasink = Node(DataSink(base_directory=home, container=output_dir), name="datasink")
+
+# Use the following DataSink output substitutions
+substitutions = [('_subject_id', ''),
+                 ('_session_id_', ''),
+                 ('_task-flanker', ''),
+                 ('_mcf.nii_mean_reg', '_mean'),
+                 ('.nii.par', '.par')
+                 ]
+subjFolders = [('%s_%s/' % (sess, sub), '%s/%s' % (sub, sess))
+               for sess in session_list
+               for sub in subject_list]
+subjFolders += [('%s_%s' % (sub, sess), '')
+                for sess in session_list
+                for sub in subject_list]
+subjFolders += [('%s%s_' % (sess, sub), '')
+                for sess in session_list
+                for sub in subject_list]
+substitutions.extend(subjFolders)
+
+datasink.inputs.substitutions = substitutions
+
+# Brain extraction:
+bet = Node(interface=fsl.BET(), name='skull_strip', iterfield=['in_file'])
+bet.inputs.frac = 0.4
+
+############################# PIPELINE #################################################################################
+# Create a preprocessing workflow
+preproc = Workflow(name='preproc_test')
+preproc.base_dir = output_dir
+
+preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id')
+preproc.connect(selectfiles, 'anat', bet, 'in_file')
+preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
+
+# Create preproc output graph
+preproc.write_graph(graph2use='colored', format='png', simple_form=True)
+
+# Visualize the graph
+from IPython.display import Image
+Image(filename=opj(preproc.base_dir, 'preproc', 'graph.png'))
+
+# Visualize the detailed graph
+preproc.write_graph(graph2use='flat', format='png', simple_form=True)
+Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
+
+preproc.run()
+
