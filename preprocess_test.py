@@ -240,7 +240,7 @@ preproc.base_dir = output_dir
 
 # Connect all components of the preprocessing workflow
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id' )
-preproc.connect(selectfiles, 'func', trim, 'in_file')
+#preproc.connect(selectfiles, 'func', trim, 'in_file')
 preproc.connect(selectfiles, 'anat', bet, 'in_file')
 preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
 
