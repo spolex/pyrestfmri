@@ -69,13 +69,14 @@ subjFolders += [('%s_%s' % (sub, sess), '')
 subjFolders += [('%s%s_' % (sess, sub), '')
                 for sess in session_list
                 for sub in subject_list]
-substitutions.extend(subjFolders)
 
+substitutions.extend(subjFolders)
 datasink.inputs.substitutions = substitutions
 
 # Brain extraction:
 bet = Node(interface=fsl.BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
+bet.inputs.robust = True
 
 ############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
@@ -97,4 +98,4 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph.png'))
 preproc.write_graph(graph2use='flat', format='png', simple_form=True)
 Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
 
-preproc.run()
+preproc.run('MultiProc', plugin_args={'n_procs': 8})
