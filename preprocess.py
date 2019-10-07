@@ -111,7 +111,7 @@ trim = Node(interface=Trim(),output_type='NIFTI_GZ',name='select_volumes')
 trim.inputs.begin_index=3 # remove first 3 volume
 trim.inputs.end_index=161 # get only until volume 162
 
-# Brain extraction:
+# Brain extraction, robust:
 bet = Node(interface=BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
 bet.inputs.robust = True
