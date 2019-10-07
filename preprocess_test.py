@@ -4,7 +4,27 @@ from nipype.pipeline.engine import Workflow, Node
 from nipype.interfaces.io import SelectFiles, DataSink
 from nipype.interfaces.utility import IdentityInterface
 from nipype.interfaces import fsl
+from utils import experiment_config
+import argparse
+from nipype import config, logging
 
+
+# set up argparser
+parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
+parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config_old.json", nargs='?', default="conf/config_test.json")
+args = parser.parse_args()
+
+#load experiment configuration
+experiment = experiment_config(args.config)["experiment"]
+# set up envvironment
+config.enable_debug_mode()
+config.set('execution', 'stop_on_first_crash', 'true')
+config.set('execution', 'remove_unnecessary_outputs', 'true')
+config.set('logging', 'workflow_level', experiment["log_level"])
+config.set('logging', 'interface_level', experiment["log_level"])
+config.set('logging', 'log_to_file', True)
+config.set('logging', 'log_directory', experiment["preproc_log_dir"])
+logging.update_logging(config)
 
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
 
@@ -17,9 +37,9 @@ func_file = opj('{subject_id}', 'f1.nii.gz')
 templates = {'anat': anat_file,
              'func': func_file}
 
-home = "/home/elekin"
-data_dir = "/home/elekin/datos"
-output_dir = "/home/elekin/results/output"
+home = experiment["files_path"]["working_dir"]
+data_dir = experiment["files_path"]["preproc"]["data_path"]
+output_dir = experiment["files_path"]["preproc"]["output"]
 
 # Infosource - a function free node to iterate over the list of subject names
 # fetch input
