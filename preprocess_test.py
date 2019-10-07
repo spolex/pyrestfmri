@@ -28,8 +28,8 @@ logging.update_logging(config)
 
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
 
-subject_list=["C024"]
-session_list=[1]
+subject_list = experiment["subjects_id"]
+session_list = [1]
 
 anat_file = opj('{subject_id}', 'mprage.nii.gz')
 func_file = opj('{subject_id}', 'f1.nii.gz')
