@@ -92,6 +92,8 @@ trim.inputs.begin_index = 3
 trim.inputs.end_index = 161
 
 # Slice Timing correction
+# time repetition
+TR = experiment["t_r"]
 slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer")
 
 # MCFLIRT - motion correction
