@@ -18,6 +18,7 @@ from utils import experiment_config
 # set up argparser
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
 parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config_old.json", nargs='?', default="conf/config_test.json")
+parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot translation and rotations movement and save .par files")
 args = parser.parse_args()
 
 #load experiment configuration
@@ -99,6 +100,13 @@ slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer
 # MCFLIRT - motion correction
 mcflirt = Node(MCFLIRT(mean_vol=True, save_plots=args.move_plot), name="mcflirt")
 
+# Plot estimated motion parametersfrom realignment
+if args.move_plot:
+    # plots
+    mc_plots = ['rotations', 'translations']
+    plotter = Node(fsl.PlotMotionParams(), name="motion_correction_plots")
+    plotter.inputs.in_source = 'fsl'
+    plotter.iterables = ('plot_type', mc_plots)
 
 ############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
