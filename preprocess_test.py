@@ -260,4 +260,6 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
 plugin_args = {'n_procs': args.parallelism,
                'memory_gb': 30}
 
-preproc.run(plugin='MultiProc', plugin_args=plugin_args)
+#preproc.run(plugin='MultiProc', plugin_args=plugin_args)
+
+preproc.run()
