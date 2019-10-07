@@ -257,7 +257,7 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph.png'))
 preproc.write_graph(graph2use='flat', format='png', simple_form=True)
 Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
 
+plugin_args = {'n_procs': args.parallelism,
+               'memory_gb': 30}
 
-
-#preproc.run()
-preproc.run('MultiProc', plugin_args={'n_procs': args.parallelism})
+preproc.run(plugin='MultiProc', plugin_args=plugin_args)
