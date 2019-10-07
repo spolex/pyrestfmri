@@ -19,7 +19,7 @@ templates = {'anat': anat_file,
 
 home = "/home/elekin"
 data_dir = "/home/elekin/datos"
-output_dir = "/home/elekin/results/output/preproc"
+output_dir = "/home/elekin/results/output"
 
 # Infosource - a function free node to iterate over the list of subject names
 # fetch input
