@@ -47,6 +47,7 @@ func_file = opj('{subject_id}', 'f1.nii.gz')
 templates = {'anat': anat_file,
              'func': func_file}
 
+print(experiment)
 home = experiment["files_path"]["working_dir"]
 data_dir = experiment["files_path"]["preproc"]["data_path"]
 output_dir = experiment["files_path"]["preproc"]["output"]
