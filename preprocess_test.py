@@ -81,10 +81,10 @@ func_file = opj('{subject_id}', 'f1.nii.gz')
 templates = {'anat': anat_file,
              'func': func_file}
 
-selectfiles = Node(SelectFiles(templates,base_directory=data_dir),name="selectfiles")
+selectfiles = Node(SelectFiles(templates, base_directory=data_dir), name="selectfiles")
 
 # Datasink - creates output folder for important outputs
-datasink = Node(DataSink(base_directory=experiment_dir,container=output_dir),name="datasink")
+datasink = Node(DataSink(base_directory=experiment_dir, container=output_dir), name="datasink")
 
 # Use the following DataSink output substitutions
 substitutions = [('_subject_id', ''),
@@ -107,15 +107,16 @@ substitutions.extend(subjFolders)
 datasink.inputs.substitutions = substitutions
 
 # Select number of volumes
-trim = Node(interface=Trim(),output_type='NIFTI_GZ',name='select_volumes')
-trim.inputs.begin_index=3 # remove first 3 volume
-trim.inputs.end_index=161 # get only until volume 162
+trim = Node(interface=Trim(), output_type='NIFTI_GZ', name='select_volumes')
+# remove first 3 volume
+trim.inputs.begin_index = 3
+# get only until volume 162
+trim.inputs.end_index = 161
 
 # Brain extraction:
 bet = Node(interface=BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
 #bet.inputs.reduce_bias = True
-
 
 # Slice Timing correction
 slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer")
@@ -227,7 +228,7 @@ smooth.inputs.brightness_threshold = brightness_threshold
 
 # Infosource - a function free node to iterate over the list of subject names
 # fetch input
-infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Template','Template_3mm']),
+infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Template', 'Template_3mm']),
                   name="infosource")
 infosource.iterables = [('subject_id', subject_list),
                         ('session_id', session_list)]
