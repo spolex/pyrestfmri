@@ -79,7 +79,7 @@ bet.inputs.frac = 0.4
 
 ############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
-preproc = Workflow(name='preproc_test')
+preproc = Workflow(name='preproc')
 preproc.base_dir = output_dir
 
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id')
