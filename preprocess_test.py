@@ -128,4 +128,4 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph.png'))
 preproc.write_graph(graph2use='flat', format='png', simple_form=True)
 Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
 
-preproc.run('MultiProc', plugin_args={'n_procs': 8})
+preproc.run('MultiProc', plugin_args={'n_procs': 16})
