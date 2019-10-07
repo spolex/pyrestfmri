@@ -4,7 +4,10 @@
     "preproc_log_dir": "results/02-PREPROCESS/log",
     "log_level": "DEBUG", 
     "subjects_id": [
-    "C021"
+      "C021",
+      "C024",
+      "C026",
+      "C034"
     ], 
     "files_path": {
       "working_dir": "/home/elekin",
