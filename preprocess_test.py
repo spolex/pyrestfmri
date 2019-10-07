@@ -1,12 +1,18 @@
-from nipype.interfaces import fsl
+from __future__ import print_function, division, unicode_literals, absolute_import
 from os.path import join as opj
-from nipype.pipeline.engine import Workflow, Node
-from nipype.interfaces.io import SelectFiles, DataSink
-from nipype.interfaces.utility import IdentityInterface
 from nipype.interfaces import fsl
-from utils import experiment_config
+from nipype.interfaces.fsl import MCFLIRT, BET, SUSAN, SliceTimer, TemporalFilter,ImageStats,Threshold,FilterRegressor
+from nipype.interfaces.ants import Registration
+from nipype.interfaces.nipy.preprocess import Trim
+from nipype.interfaces.afni import Detrend
+from nipype.algorithms import confounds
+from nipype.interfaces.io import SelectFiles, DataSink
+from nipype.pipeline.engine import Workflow, Node
+from nipype.interfaces.utility import Function,IdentityInterface, Merge
+from nipype.interfaces.ants import ApplyTransforms
 import argparse
 from nipype import config, logging
+from utils import experiment_config
 
 
 # set up argparser
@@ -78,14 +84,36 @@ bet = Node(interface=fsl.BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
 bet.inputs.robust = True
 
+# Select number of volumes
+trim = Node(interface=Trim(),output_type='NIFTI_GZ',name='select_volumes')
+# remove first 3 volume
+trim.inputs.begin_index = 3
+# get only until volume 162
+trim.inputs.end_index = 161
+
+# Slice Timing correction
+slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer")
+
+# MCFLIRT - motion correction
+mcflirt = Node(MCFLIRT(mean_vol=True, save_plots=args.move_plot), name="mcflirt")
+
+
 ############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
 preproc = Workflow(name='preproc')
 preproc.base_dir = output_dir
 
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id')
+
 preproc.connect(selectfiles, 'anat', bet, 'in_file')
+
+preproc.connect(selectfiles, 'func', trim, 'in_file')
+preproc.connect(trim, 'out_file', slice_timing_correction, 'in_file')
+preproc.connect(slice_timing_correction, 'slice_time_corrected_file', mcflirt, 'in_file')
+
 preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
+preproc.connect(mcflirt, 'par_file', datasink, 'preproc.@par')
+
 
 # Create preproc output graph
 preproc.write_graph(graph2use='colored', format='png', simple_form=True)
