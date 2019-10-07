@@ -114,7 +114,7 @@ trim.inputs.end_index=161 # get only until volume 162
 # Brain extraction:
 bet = Node(interface=BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
-#bet.inputs.reduce_bias = True
+bet.inputs.robust = True
 
 
 # Slice Timing correction
