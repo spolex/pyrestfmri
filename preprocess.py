@@ -22,7 +22,7 @@ from utils import experiment_config
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
-parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config_old.json", nargs='?', default="conf/config_test_old.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path, default file is config_old.json", nargs='?', default="conf/config_test.json")
 parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot translation and rotations movement and save .par files")
 parser.add_argument("-f","--fwhm", type=str, help="Smooth filter's threshold list. [5] by default", nargs='?', default="[5]")
 parser.add_argument("-b","--brightness_threshold", type=float, help="Smooth filter brightness' threshold. 1000.0 by default", nargs='?', default=None)
