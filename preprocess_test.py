@@ -22,7 +22,6 @@ parser.add_argument("-m","--move_plot", action="store_true", help="MCFLIRT: Plot
 args = parser.parse_args()
 
 #load experiment configuration
-print(args.config)
 experiment = experiment_config(args.config)["experiment"]
 # set up envvironment
 config.enable_debug_mode()
