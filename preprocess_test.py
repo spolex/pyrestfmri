@@ -108,6 +108,12 @@ if args.move_plot:
     plotter.inputs.in_source = 'fsl'
     plotter.iterables = ('plot_type', mc_plots)
 
+# apply the combined transform
+applyTransFunc = Node(ApplyTransforms(), iterfield=['input_image', 'transforms'],name='applyTransFunc')
+applyTransFunc.inputs.input_image_type = 3
+applyTransFunc.inputs.interpolation = 'BSpline'
+applyTransFunc.inputs.invert_transform_flags = [False, False]
+
 ############################# PIPELINE #################################################################################
 # Create a preprocessing workflow
 preproc = Workflow(name='preproc')
@@ -120,6 +126,10 @@ preproc.connect(selectfiles, 'anat', bet, 'in_file')
 preproc.connect(selectfiles, 'func', trim, 'in_file')
 preproc.connect(trim, 'out_file', slice_timing_correction, 'in_file')
 preproc.connect(slice_timing_correction, 'slice_time_corrected_file', mcflirt, 'in_file')
+preproc.connect(mcflirt,'out_file', applyTransFunc, 'input_image')
+if args.move_plot:
+    preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
+
 
 preproc.connect(bet, 'out_file', datasink, 'preproc.@skull_strip')
 preproc.connect(mcflirt, 'par_file', datasink, 'preproc.@par')
