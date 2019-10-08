@@ -3,9 +3,7 @@ node{
     def img
     docker.withServer("${SERVER}") {
 
-        stage ('Checkout'){
-            git branch: 'develop', url: 'https://github.com/spolex/pyrestfmri'
-        }
+        checkout scm
 
         stage ("Get image"){
             img = docker.image("spolex/pyrestfmri:${IMG_VER}")
