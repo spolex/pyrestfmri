@@ -1,9 +1,11 @@
-/*properties([pipelineTriggers([githubPush()])])*/
+properties([pipelineTriggers([githubPush()])])
 node{
     def img
     docker.withServer("${SERVER}") {
 
-        checkout scm
+        stage ('Checkout'){
+            git branch: 'develop', url: 'https://github.com/spolex/pyrestfmri'
+        }
 
         stage ("Get image"){
             img = docker.image("spolex/pyrestfmri:${IMG_VER}")
