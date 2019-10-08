@@ -10,7 +10,7 @@ import argparse
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Process Shannon entropy and Permutation entropy")
-parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
 parser.add_argument("-p","--psd_save", action="store_true", help="Save calculated PSD for each subject's regions in individual file, 1 activate")
 parser.add_argument("-s","--ssh_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")
 parser.add_argument("-e","--pe_save", action="store_true", help="Save calculated SSH for each subject's regions in individual file, 1 activate")

@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser(description="Functional atlas based region extractor")
-parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
 parser.add_argument("-b","--plot_connectcome", action="store_true", help="Plot brain connectcome")
 parser.add_argument("-o","--plot_components", action="store_true", help="Plot region extracted for all components")
 parser.add_argument("-r","--plot_regions", action="store_true", help="""Plot (right side) same network after region extraction to show
