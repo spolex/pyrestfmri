@@ -3,7 +3,7 @@ node{
     def img
     docker.withServer("${SERVER}") {
 
-        stage ('Checkout'){
+        stage ('Checkout-dev'){
             git branch: 'develop', url: 'https://github.com/spolex/pyrestfmri'
         }
 
