@@ -107,15 +107,20 @@ substitutions.extend(subjFolders)
 datasink.inputs.substitutions = substitutions
 
 # Select number of volumes
-trim = Node(interface=Trim(),output_type='NIFTI_GZ',name='select_volumes')
+trim = Node(interface=Trim(), output_type='NIFTI_GZ',name='select_volumes')
 trim.inputs.begin_index=3 # remove first 3 volume
 trim.inputs.end_index=161 # get only until volume 162
+
+# Neck remover:
+fov = Node(interface=fsl.RobustFOV(), name='Neck remover(fsl)', iterfield=['in_file'])
+
+# Normalize to MNI:
+flt = Node(fsl.FLIRT(bins=640, cost_func='mutualinfo'), name="Normalize")
 
 # Brain extraction, robust:
 bet = Node(interface=BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
 bet.inputs.robust = True
-
 
 # Slice Timing correction
 slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer")
@@ -181,7 +186,7 @@ reg.inputs.sigma_units = ['vox'] * 2
 reg.inputs.shrink_factors = [[2,1], [3,2,1]]
 reg.inputs.use_estimate_learning_rate_once = [True] * 2
 reg.inputs.use_histogram_matching = [True] * 2
-reg.inputs.verbose = True
+reg.inputs.verbose = False
 
  # combine transforms
 merge = Node(Merge(2), iterfield=['in2'], name='mergexfm')
@@ -241,7 +246,10 @@ preproc.base_dir = output_dir
 # Connect all components of the preprocessing workflow
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id' )
 preproc.connect(selectfiles, 'func', trim, 'in_file')
-preproc.connect(selectfiles, 'anat', bet, 'in_file')
+preproc.connect(selectfiles, 'anat', fov, 'in_file')
+preproc.connect(fov, 'out_roi', flt, 'in_file')
+preproc.connect(infosource, 'Template', flt, 'reference')
+preproc.connect(flt, 'out_file', bet, 'in_file')
 preproc.connect(trim, 'out_file', slice_timing_correction, 'in_file')
 preproc.connect(slice_timing_correction, 'slice_time_corrected_file', mcflirt, 'in_file')
 if(args.move_plot):preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
