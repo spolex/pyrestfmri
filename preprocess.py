@@ -232,7 +232,7 @@ smooth.inputs.brightness_threshold = brightness_threshold
 
 # Infosource - a function free node to iterate over the list of subject names
 # fetch input
-infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Template','Template_3mm']),
+infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Brain_template','Template','Template_3mm']),
                   name="infosource")
 infosource.iterables = [('subject_id', subject_list),
                         ('session_id', session_list)]
@@ -293,6 +293,7 @@ if(args.move_plot):preproc.connect(plotter, 'out_file', datasink, 'preproc.@moti
 
 #set up templates to register
 preproc.inputs.infosource.Template = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template"])
+preproc.inputs.infosource.Brain_template = opj(base_dir,experiment["files_path"]["preproc"]["register"]["brain_template"])
 preproc.inputs.infosource.Template_3mm = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template_3mm"])
 
 # visualizamos el workfow
