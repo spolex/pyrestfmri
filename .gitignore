@@ -1,6 +1,5 @@
 *.pyc
 nilearn_cache/
-.spyproject/
 *.dot
 *.dot.*
 tmp.py
@@ -22,4 +21,6 @@ apuntes/
 notebooks/.ipynb_checkpoints
 notebooks/__pycache_
 notebooks/*.npz
-
+notebooks/imgs/
+notebooks/data
+*.ipynb_checkpoints*
