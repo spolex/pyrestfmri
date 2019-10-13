@@ -112,7 +112,7 @@ trim.inputs.begin_index=3 # remove first 3 volume
 trim.inputs.end_index=161 # get only until volume 162
 
 # Neck remover:
-fov = Node(interface=fsl.RobustFOV(), name='Neck_remover(fsl)', iterfield=['in_file'])
+fov = Node(interface=fsl.RobustFOV(), name='Neck_remover', iterfield=['in_file'])
 
 # Normalize to MNI:
 flt = Node(fsl.FLIRT(bins=640, cost_func='mutualinfo'), name="Normalize", iterfield=['in_file'])
