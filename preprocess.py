@@ -257,16 +257,15 @@ if(args.move_plot):preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
 preproc.connect(bet, 'out_file', coreg, 'fixed_image')
 preproc.connect(mcflirt, 'mean_img', coreg, 'moving_image')
 #anat2standard
-#preproc.connect(bet, 'out_file', reg, 'moving_image')
-#preproc.connect(infosource, 'Brain_template', reg, 'fixed_image')
+preproc.connect(bet, 'out_file', reg, 'moving_image')
+preproc.connect(infosource, 'Brain_template', reg, 'fixed_image')
 # get transform of functional image to template and apply it to the functional 
 #images to template_3mm (same space as     
 # template)
 preproc.connect(infosource, 'Template_3mm', applyTransFunc, 'reference_image')
 preproc.connect(mcflirt,'out_file', applyTransFunc, 'input_image')
 preproc.connect(coreg, 'composite_transform', merge, 'in1')
-#preproc.connect(reg, 'composite_transform', merge, 'in2')
-preproc.connect(bet, 'composite_transform', merge, 'in2')
+preproc.connect(reg, 'composite_transform', merge, 'in2')
 preproc.connect(merge, 'out', applyTransFunc, 'transforms')
 #artifact detection
 preproc.connect(applyTransFunc, 'output_image', tsnr, 'in_file')
