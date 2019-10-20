@@ -47,14 +47,15 @@ confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data
 TR = experiment["t_r"]
 atlas_filename = "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
 
-masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', verbose=True)
+masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True,
+                         verbose=True)
 masker.fit()
 
 for filename, confound in zip(func_filenames, confounds_components):
     logging.debug(filename)
     masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
     filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
-    if not op.exists(filename):create_dir(filename)
+    if not op.exists(filename): create_dir(filename)
     np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
     fig = plt.figure()
     plt.plot(masker_timeseries_each_subject)
