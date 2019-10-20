@@ -51,5 +51,5 @@ masker.fit()
 #map(lambda filename, confound: extract_cbl(filename, confound, masker), func_filenames, confounds_components)
 
 for filename, confound in zip(func_filenames, confounds_components):
-
+    print("entro")
     extract_cbl(filename, confound, masker)
