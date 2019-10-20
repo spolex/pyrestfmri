@@ -30,7 +30,7 @@ subject_list = np.array(experiment["subjects_id"])
 logging.debug("Subject ids: " + str(subject_list))
 
 
-ts_image = "../../datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
+ts_image = experiment["files_path"]["ts_image"]
 cf_file = experiment["files_path"]["preproc"]["noise_components"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
 
