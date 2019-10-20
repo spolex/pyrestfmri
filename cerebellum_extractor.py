@@ -51,6 +51,7 @@ masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory
                              verbose=args.verbose, t_r=TR)
 masker = NiftiMasker()
 masker.fit()
+print(func_filenames)
 
 for filename, confound in zip(func_filenames, confounds_components):
     print(filename)
