@@ -48,7 +48,7 @@ TR = experiment["t_r"]
 atlas_filename = "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
 
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True,
-                         verbose=True)
+                         verbose=True, t_r=TR)
 masker.fit()
 
 for filename, confound in zip(func_filenames, confounds_components):
