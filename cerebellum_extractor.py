@@ -50,7 +50,7 @@ atlas_filename = experiment["files_path"]["cbl_extractor"]["cbl_atlas"]
 
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True,
                              verbose=args.verbose, t_r=TR)
-
+logging.info("here")
 masker = NiftiMasker()
 masker.fit()
 
