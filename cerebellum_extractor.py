@@ -1,6 +1,6 @@
 from utils import create_dir,flatmap,experiment_config, update_experiment,plot,plot_connectcome,plot_extracted
 import argparse
-from nilearn.input_data import NiftiMapsMasker
+from nilearn.input_data import NiftiMapsMasker, NiftiMasker
 import logging
 import numpy as np
 from os import path as op
@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description="Cerebellum atlas based region extr
 parser.add_argument("-v","--verbose", type=int, help="verbose leevel, default 10", nargs='?', default=10)
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are centered and normed: their mean is put to 0 and their variance to 1 in the time dimension.")
 parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
+parser.add_argument("-m",'--maps', help='Use mapsmasker instead of masker', action='store_true')
 args=parser.parse_args()
 
 # get experiment configuration
@@ -47,8 +48,11 @@ confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data
 TR = experiment["t_r"]
 atlas_filename = experiment["files_path"]["cbl_extractor"]["cbl_atlas"]
 
-masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True,
-                         verbose=True, t_r=TR)
+if args.maps:
+    masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True,
+                             verbose=args.verbose, t_r=TR)
+else:
+    masker = NiftiMasker()
 masker.fit()
 
 for filename, confound in zip(func_filenames, confounds_components):

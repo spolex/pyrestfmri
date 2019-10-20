@@ -4,8 +4,8 @@
     "preproc_log_dir": "/home/elekin/results/log",
     "log_level": "DEBUG", 
     "subjects_id": [
-      "C578"
-    ], 
+		"C578"
+    ],
     "files_path": {
       "working_dir": "/home/elekin",
       "preproc": {
@@ -26,7 +26,7 @@
         "log": "log/region_extractor_dev.log"
       }, 
       "masker_ts_file": "dictmasker_extracted_ts.csv",
-      "ts_image": "applyTransFunc/f1_trim_st_mcf_trans.nii.gz",
+      "ts_image": "bandpass_filter/detrend_regfilt_filt.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
         "log": "log/brain_atlas_extractor_dev.log",
