@@ -23,22 +23,22 @@
       "msdl_ts_file": "msdl/masker_extracted_ts.csv",
       "_comment": "", 
       "r_extractor": {
-        "log": "log/region_extractor.log"
+        "log": "results/log/region_extractor.log"
       }, 
       "masker_ts_file": "dictmasker_extracted_ts.csv",
       "ts_image": "bandpass_filter/detrend_regfilt_filt.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
-        "log": "log/brain_atlas_extractor.log",
+        "log": "results/log/brain_atlas_extractor.log",
         "components_img": ""
       },
       "cbl_extractor": {
         "cbl_atlas": "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz",
-        "log": "log/cbl_extractor.log"
+        "log": "results/log/cbl_extractor.log"
       },
       "entropy": {
         "_comment": "", 
-        "log": "log/entropy_log_dev.log",
+        "log": "results/log/entropy_log_dev.log",
         "outdir": "entropy"
       }, 
       "ts_file": "results/dict_extracted_ts.csv",
