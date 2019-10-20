@@ -4,7 +4,7 @@ from nilearn.input_data import NiftiMapsMasker, NiftiMasker
 import logging
 import numpy as np
 from os import path as op
-import matplotlib.pyplot as plt
+from utils import extract_cbl
 
 parser = argparse.ArgumentParser(description="Cerebellum atlas based region extractor")
 parser.add_argument("-v","--verbose", help="verbose leevel, default 10", action='store_true')
@@ -32,7 +32,7 @@ logging.debug("Subject ids: " + str(subject_list))
 
 ts_image = experiment["files_path"]["ts_image"]
 cf_file = experiment["files_path"]["preproc"]["noise_components"]
-session_list = [1] # sessions start in 1 TODO allow more than one session
+session_list = [1]
 
 #set up data dirs
 subjects_pref = list(map(lambda subject: '_subject_id_'+(subject), subject_list))
@@ -46,24 +46,7 @@ confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data
 
 TR = experiment["t_r"]
 atlas_filename = experiment["files_path"]["cbl_extractor"]["cbl_atlas"]
-
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True, verbose=args.verbose, t_r=TR)
 masker.fit()
 
-for filename, confound in zip(func_filenames, confounds_components):
-    logging.debug("Extracting cerebellum from: "+filename)
-    masker_timeseries_each_subject = masker.transform(filename, confounds=confound)
-    rdo_dir = '/'.join(filename.split('/')[0:-1])+'/cbl'
-    if not op.exists(rdo_dir):
-        create_dir(rdo_dir)
-    np.savetxt(rdo_dir+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
-    fig = plt.figure()
-    plt.plot(masker_timeseries_each_subject)
-    plt.xlabel('')
-    plt.ylabel('')
-    fig.savefig(rdo_dir+"/masker_extracted_ts" + ".png")
-    plt.close()
-    # save cbl image
-    cbl_filename = rdo_dir + '/cbl_extracted.nii.gz'
-    cbl_img = masker.inverse_transform(masker_timeseries_each_subject)
-    cbl_img.to_filename(op.join(cbl_filename))
+map(lambda filename, confound: extract_cbl(filename, confound, masker), func_filenames, confounds_components)
