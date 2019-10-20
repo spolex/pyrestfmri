@@ -49,18 +49,15 @@ atlas_filename = "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.
 
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', verbose=True)
 masker.fit()
-print(func_filenames)
-print(confounds_components)
 
 for filename, confound in zip(func_filenames, confounds_components):
-    print(filename)
-    #logging.debug(filename)
-    # masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
-    # filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
-    # np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
-    # fig = plt.figure()
-    # plt.plot(masker_timeseries_each_subject)
-    # plt.xlabel('')
-    # plt.ylabel('')
-    # fig.savefig(filename+"/masker_extracted_ts" + ".png")
-    # plt.close()
+    logging.debug(filename)
+    masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
+    filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
+    np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
+    fig = plt.figure()
+    plt.plot(masker_timeseries_each_subject)
+    plt.xlabel('')
+    plt.ylabel('')
+    fig.savefig(filename+"/masker_extracted_ts" + ".png")
+    plt.close()
