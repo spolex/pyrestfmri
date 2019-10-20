@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser(description="Cerebellum atlas based region extractor")
 parser.add_argument("-v","--verbose", type=int, help="verbose leevel, default 10", nargs='?', default=10)
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are centered and normed: their mean is put to 0 and their variance to 1 in the time dimension.")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
 args=parser.parse_args()
 
 # get experiment configuration
