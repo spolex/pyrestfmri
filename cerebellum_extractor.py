@@ -7,7 +7,7 @@ from os import path as op
 import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description="Cerebellum atlas based region extractor")
-parser.add_argument("-v","--verbose", type=int, help="verbose leevel, default 10", nargs='?', default=10)
+parser.add_argument("-v","--verbose", help="verbose leevel, default 10", action='store_true')
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are "
                                                                     "centered and normed: their mean is put to 0 and "
                                                                     "their variance to 1 in the time dimension.")
