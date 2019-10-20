@@ -2,7 +2,7 @@ from utils import create_dir
 from matplotlib import pyplot as plt
 import numpy as np
 from os import path as op
-
+import logging
 
 def extract_cbl(func_file, confound_file, masker):
     """
@@ -12,8 +12,7 @@ def extract_cbl(func_file, confound_file, masker):
     :param masker:
     :return:
     """
-    print("Entro")
-    print(func_file)
+    logging.debug("Extractin cerebellum from subject: "+func_file)
     masker_timeseries_each_subject = masker.transform(func_file, confounds=confound_file)
     rdo_dir = '/'.join(func_file.split('/')[0:-1]) + '/cbl'
     if not op.exists(rdo_dir):
