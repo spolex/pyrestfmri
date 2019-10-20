@@ -54,6 +54,7 @@ for filename, confound in zip(func_filenames, confounds_components):
     logging.debug(filename)
     masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
     filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
+    if not op.exists(filename):create_dir(filename)
     np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
     fig = plt.figure()
     plt.plot(masker_timeseries_each_subject)
