@@ -133,8 +133,9 @@
         "components_img": ""
       },
       "cbl_extractor": {
-        "cbl_atlas": "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
-      },
+		  "cbl_atlas": "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz",
+		  "log": "log/cbl_extractor.log"
+	  },
       "entropy": {
         "_comment": "",
         "log": "log/entropy_log_dev.log",
