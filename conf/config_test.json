@@ -16,25 +16,28 @@
           "_comment": "", 
           "template_3mm": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz",
           "brain_template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz",
-         "template": "datos/TEMPLATES/MNI152_T1_1mm.nii.gz"
+          "template": "datos/TEMPLATES/MNI152_T1_1mm.nii.gz"
         },
         "noise_components": "compcor/noise_components.txt"
-      }, 
-      "msdl_ts_file": "results/msdl/masker_extracted_ts.csv",
+      },
+      "msdl_ts_file": "msdl/masker_extracted_ts.csv",
       "_comment": "", 
       "r_extractor": {
-        "log": "results/log/region_extractor_dev.log"
+        "log": "log/region_extractor_dev.log"
       }, 
-      "masker_ts_file": "results/dictmasker_extracted_ts.csv",
-      "ts_image": "remove_noise/detrend_regfilt.nii.gz",
+      "masker_ts_file": "dictmasker_extracted_ts.csv",
+      "ts_image": "applyTransFunc/f1_trim_st_mcf_trans.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
-        "log": "results/log/brain_atlas_extractor_dev.log",
+        "log": "log/brain_atlas_extractor_dev.log",
         "components_img": ""
-      }, 
+      },
+      "cbl_extractor": {
+        "cbl_atlas": "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
+      },
       "entropy": {
         "_comment": "", 
-        "log": "results/log/entropy_log_dev.log",
+        "log": "log/entropy_log_dev.log",
         "outdir": "entropy"
       }, 
       "ts_file": "results/dict_extracted_ts.csv",
