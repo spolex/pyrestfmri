@@ -145,6 +145,7 @@ def plot_extracted(components_img, regions_extracted_img, num_comp, regions_inde
 
 
 def extract_cbl(func_file, confound_file, masker):
+    print(func_file)
     masker_timeseries_each_subject = masker.transform(func_file, confounds=confound_file)
     rdo_dir = '/'.join(func_file.split('/')[0:-1]) + '/cbl'
     if not op.exists(rdo_dir):
