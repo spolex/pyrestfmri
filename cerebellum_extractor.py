@@ -23,7 +23,7 @@ logging.getLogger().setLevel(experiment["log_level"])
 logfile = experiment["files_path"]["cbl_extractor"]["log"]
 if not op.exists(logfile):
     create_dir(logfile)
-logging.basicConfig(filename=logfile, filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(filename=logfile, filemode='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 # set up working dir
 data_dir = experiment["files_path"]["preproc_data_dir"]
