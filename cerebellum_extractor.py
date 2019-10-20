@@ -51,6 +51,7 @@ masker = NiftiMapsMasker( t_r=TR, maps_img=atlas_filename, standardize=True,
                            memory='nilearn_cache', verbose=True)
 masker.fit()
 for filename, confound in zip(func_filenames, confounds_components):
+    logging.debug(filename)
     masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
     filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
     np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
