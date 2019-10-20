@@ -39,7 +39,7 @@
       }, 
       "ts_file": "results/dict_extracted_ts.csv",
       "root": "/home/results",
-      "preproc_data_dir": "/home/results/output/preproc"
+      "preproc_data_dir": "/home/elekin/results/output/preproc"
     }, 
     "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
     "labels": [
