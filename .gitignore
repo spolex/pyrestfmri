@@ -24,3 +24,5 @@ notebooks/*.npz
 notebooks/imgs/
 notebooks/data
 *.ipynb_checkpoints*
+results/
+notebooks/*.nii.gz
