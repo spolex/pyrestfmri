@@ -51,6 +51,7 @@ masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', verbos
 masker.fit()
 print("here")
 for filename, confound in zip(func_filenames, confounds_components):
+    print("here")
     logging.debug(filename)
     masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
     filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
