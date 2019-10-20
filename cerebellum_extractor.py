@@ -45,7 +45,7 @@ func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,s
 confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session),sessions_subjects_dir))
 
 TR = experiment["t_r"]
-atlas_filename = "../../datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
+atlas_filename = "../datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
 
 masker = NiftiMapsMasker( t_r=TR, maps_img=atlas_filename, standardize=True,
                            memory='nilearn_cache', verbose=True)
