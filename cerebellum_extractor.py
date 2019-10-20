@@ -35,10 +35,10 @@ cf_file = experiment["files_path"]["preproc"]["noise_components"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
 
 #set up data dirs
-subjects_pref = map(lambda subject: '_subject_id_'+(subject), subject_list)
-sessions_subjects_dir = map(lambda session: map(lambda subject_pref: '_session_id_'+str(session)+subject_pref,subjects_pref), session_list)
+subjects_pref = list(map(lambda subject: '_subject_id_'+(subject), subject_list))
+sessions_subjects_dir = list(map(lambda session: list(map(lambda subject_pref: '_session_id_'+str(session)+subject_pref,subjects_pref)), session_list))
 #flattened all filenames
-input_dirs = map(lambda session: map(lambda subj:op.join(data_dir,subj),session),sessions_subjects_dir)
+input_dirs = list(map(lambda session: list(map(lambda subj:op.join(data_dir,subj),session)),sessions_subjects_dir))
 
 #functional images and components confounds
 func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_image),session), sessions_subjects_dir))
@@ -54,7 +54,7 @@ print(confounds_components)
 
 for filename, confound in zip(func_filenames, confounds_components):
     print(filename)
-    # logging.debug(filename)
+    #logging.debug(filename)
     # masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
     # filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
     # np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
