@@ -51,7 +51,7 @@ masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory
 masker.fit()
 
 for filename, confound in zip(func_filenames, confounds_components):
-    logging.debug(filename)
+    logging.debug("Extracting cerebellum from: "+filename)
     masker_timeseries_each_subject = masker.transform(filename, confounds=confound)
     rdo_dir = '/'.join(filename.split('/')[0:-1])+'/cbl'
     if not op.exists(rdo_dir):
