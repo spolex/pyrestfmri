@@ -62,7 +62,7 @@ for filename, confound in zip(func_filenames, confounds_components):
     plt.plot(masker_timeseries_each_subject)
     plt.xlabel('')
     plt.ylabel('')
-    fig.savefig(filename+"/masker_extracted_ts" + ".png")
+    fig.savefig(rdo_dir+"/masker_extracted_ts" + ".png")
     plt.close()
     # save cbl image
     cbl_filename = rdo_dir + '/cbl_extracted.nii.gz'
