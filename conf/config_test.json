@@ -18,7 +18,7 @@
           "brain_template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz",
          "template": "datos/TEMPLATES/MNI152_T1_1mm.nii.gz"
         },
-        "noise_components": "results/compcor/noise_components.txt"
+        "noise_components": "compcor/noise_components.txt"
       }, 
       "msdl_ts_file": "results/msdl/masker_extracted_ts.csv",
       "_comment": "", 
@@ -26,7 +26,7 @@
         "log": "results/log/region_extractor_dev.log"
       }, 
       "masker_ts_file": "results/dictmasker_extracted_ts.csv",
-      "ts_image": "results/remove_noise/detrend_regfilt.nii.gz",
+      "ts_image": "remove_noise/detrend_regfilt.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
         "log": "results/log/brain_atlas_extractor_dev.log",
