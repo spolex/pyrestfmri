@@ -53,9 +53,10 @@ masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory
 print("here2")
 masker = NiftiMasker()
 masker.fit()
+print("here2")
 
 for filename, confound in zip(func_filenames, confounds_components):
-    logging.debug(filename)
+    logging.info(filename)
     masker_timeseries_each_subject = masker.transform(filename, confounds=confound)
     rdo_dir = '/'.join(filename.split('/')[0:-1])+'/cbl'
     if not op.exists(rdo_dir):
