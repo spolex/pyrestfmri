@@ -41,8 +41,8 @@ sessions_subjects_dir = map(lambda session: map(lambda subject_pref: '_session_i
 input_dirs = map(lambda session: map(lambda subj:op.join(data_dir,subj),session),sessions_subjects_dir)
 
 #functional images and components confounds
-func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_image),session),sessions_subjects_dir))
-confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session),sessions_subjects_dir))
+func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_image),session), sessions_subjects_dir))
+confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session), sessions_subjects_dir))
 
 TR = experiment["t_r"]
 atlas_filename = "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz"
@@ -50,15 +50,16 @@ atlas_filename = "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', verbose=True)
 masker.fit()
 print("here")
+
 for filename, confound in zip(func_filenames, confounds_components):
-    print("here")
-    logging.debug(filename)
-    masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
-    filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
-    np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
-    fig = plt.figure()
-    plt.plot(masker_timeseries_each_subject)
-    plt.xlabel('')
-    plt.ylabel('')
-    fig.savefig(filename+"/masker_extracted_ts" + ".png")
-    plt.close()
+    print(filename)
+    # logging.debug(filename)
+    # masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
+    # filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
+    # np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
+    # fig = plt.figure()
+    # plt.plot(masker_timeseries_each_subject)
+    # plt.xlabel('')
+    # plt.ylabel('')
+    # fig.savefig(filename+"/masker_extracted_ts" + ".png")
+    # plt.close()
