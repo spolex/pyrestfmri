@@ -49,6 +49,7 @@ atlas_filename = "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.
 
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', verbose=True)
 masker.fit()
+print("here")
 for filename, confound in zip(func_filenames, confounds_components):
     logging.debug(filename)
     masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
