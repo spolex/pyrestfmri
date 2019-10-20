@@ -26,7 +26,7 @@
         "log": "results/log/region_extractor.log"
       }, 
       "masker_ts_file": "dictmasker_extracted_ts.csv",
-      "ts_image": "bandpass_filter/detrend_regfilt_filt.nii.gz",
+      "ts_image": "applyTransFunction/f1_trim_st_mcf_trans.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
         "log": "results/log/brain_atlas_extractor.log",

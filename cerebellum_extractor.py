@@ -1,13 +1,13 @@
-from utils import create_dir,flatmap,experiment_config, update_experiment,plot,plot_connectcome,plot_extracted
+from utils import flatmap,experiment_config
 import argparse
-from nilearn.input_data import NiftiMapsMasker, NiftiMasker
+from nilearn.input_data import NiftiMapsMasker
 import logging
 import numpy as np
 from os import path as op
-from utils import extract_cbl
+from fmriapi import extract_cbl
 
 parser = argparse.ArgumentParser(description="Cerebellum atlas based region extractor")
-parser.add_argument("-v","--verbose", help="verbose leevel, default 10", action='store_true')
+parser.add_argument("-v","--verbose", help="verbose", action='store_true')
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are "
                                                                     "centered and normed: their mean is put to 0 and "
                                                                     "their variance to 1 in the time dimension.")
@@ -29,10 +29,11 @@ data_dir = experiment["files_path"]["preproc_data_dir"]
 labels = np.array(experiment["labels"])
 subject_list = np.array(experiment["subjects_id"])
 logging.debug("Subject ids: " + str(subject_list))
-
 ts_image = experiment["files_path"]["ts_image"]
 cf_file = experiment["files_path"]["preproc"]["noise_components"]
 session_list = [1]
+TR = experiment["t_r"]
+atlas_filename = experiment["files_path"]["cbl_extractor"]["cbl_atlas"]
 
 #set up data dirs
 subjects_pref = list(map(lambda subject: '_subject_id_'+(subject), subject_list))
@@ -44,8 +45,6 @@ input_dirs = list(map(lambda session: list(map(lambda subj:op.join(data_dir,subj
 func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_image),session), sessions_subjects_dir))
 confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session), sessions_subjects_dir))
 
-TR = experiment["t_r"]
-atlas_filename = experiment["files_path"]["cbl_extractor"]["cbl_atlas"]
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True, verbose=args.verbose, t_r=TR)
 masker.fit()
 
