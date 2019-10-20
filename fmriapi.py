@@ -4,7 +4,8 @@ import numpy as np
 from os import path as op
 import logging
 
-def extract_cbl(func_file, confound_file, masker):
+
+def extract_cbl(func_file, confound_file, masker, rdo_dir):
     """
 
     :param func_file:
@@ -14,7 +15,7 @@ def extract_cbl(func_file, confound_file, masker):
     """
     logging.debug("Extractin cerebellum from subject: "+func_file)
     masker_timeseries_each_subject = masker.transform(func_file, confounds=confound_file)
-    rdo_dir = '/'.join(func_file.split('/')[0:-1]) + '/cbl'
+    #rdo_dir = '/'.join(func_file.split('/')[0:-1]) + '/cbl'
     if not op.exists(rdo_dir):
         create_dir(rdo_dir)
     np.savetxt(rdo_dir + "/cbl_extracted_ts.csv", masker_timeseries_each_subject, delimiter=",")
