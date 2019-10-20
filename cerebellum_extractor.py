@@ -50,13 +50,11 @@ atlas_filename = experiment["files_path"]["cbl_extractor"]["cbl_atlas"]
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True,
                              verbose=args.verbose, t_r=TR)
 masker = NiftiMasker()
-if op.exists(atlas_filename):
-    print(atlas_filename)
-
 masker.fit()
 
 for filename, confound in zip(func_filenames, confounds_components):
-    logging.info(filename)
+    print(filename)
+    print(confound)
     masker_timeseries_each_subject = masker.transform(filename, confounds=confound)
     rdo_dir = '/'.join(filename.split('/')[0:-1])+'/cbl'
     if not op.exists(rdo_dir):
