@@ -54,12 +54,17 @@ masker.fit()
 for filename, confound in zip(func_filenames, confounds_components):
     logging.debug(filename)
     masker_timeseries_each_subject = masker.transform(filename,confounds=confound)
-    filename = '/'.join(filename.split('/')[0:-1])+'/cbl'
-    if not op.exists(filename): create_dir(filename)
-    np.savetxt(filename+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
+    rdo_dir = '/'.join(filename.split('/')[0:-1])+'/cbl'
+    if not op.exists(rdo_dir):
+        create_dir(rdo_dir)
+    np.savetxt(rdo_dir+"/cbl_extracted_ts.csv",masker_timeseries_each_subject, delimiter=",")
     fig = plt.figure()
     plt.plot(masker_timeseries_each_subject)
     plt.xlabel('')
     plt.ylabel('')
     fig.savefig(filename+"/masker_extracted_ts" + ".png")
     plt.close()
+    # save cbl image
+    cbl_filename = rdo_dir + '/cbl_extracted.nii.gz'
+    cbl_img = masker.inverse_transform(masker_timeseries_each_subject)
+    cbl_img.to_filename(op.join(cbl_filename))
