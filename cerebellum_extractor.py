@@ -48,6 +48,4 @@ confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data
 masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True, verbose=args.verbose, t_r=TR)
 masker.fit()
 
-print(func_filenames)
 map(lambda filename, confound: extract_cbl(filename, confound, masker), func_filenames, confounds_components)
-print("ENDDDDDDDDDDDDDDDDDDDDDD")
