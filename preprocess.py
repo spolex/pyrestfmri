@@ -43,7 +43,7 @@ config.set('logging', 'workflow_level', experiment["log_level"])
 config.set('logging', 'interface_level', experiment["log_level"])
 config.set('logging', 'log_to_file', True)
 config.set('logging', 'log_directory', experiment["preproc_log_dir"])
-logging.update_logging(config)
+logging.update_logging(config, mode='a')
 
 # set working dirs
 experiment_dir = experiment["files_path"]["root"]
