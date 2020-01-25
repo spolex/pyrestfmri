@@ -15,7 +15,7 @@ node{
             img.run('--name pyrestfmri -v ${DATA_PATH}:/home/elekin/datos \
             -v ${APP_PATH}:/home/elekin/pyrestfmri  \
             -v ${RESULTS}:/home/elekin/results', \
-            --user $(id -u):$(id -g)
+            --user hadoop:hadoop
             'python /home/elekin/pyrestfmri/${APP} -c /home/elekin/pyrestfmri/conf/${CONFIG_FILE} ${PARAMS}')
          }
 
