@@ -1,10 +1,10 @@
 {
   "_comment": "Configuration file must be contain all parameters and file paths for the experiment", 
   "experiment": {
-    "preproc_log_dir": "/home/elekin/results/log",
+    "preproc_log_dir": "/home/elekin/resultados/log",
     "log_level": "DEBUG", 
     "subjects_id": [
-		"C578"
+		"T012"
     ],
     "files_path": {
       "working_dir": "/home/elekin",
