@@ -17,8 +17,9 @@ from nipype.pipeline.engine import Workflow, Node
 from nipype.interfaces.utility import Function,IdentityInterface, Merge
 from nipype.interfaces.ants import ApplyTransforms
 import argparse
-from nipype import config, logging
 from utils import experiment_config
+import logging
+
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
@@ -35,22 +36,15 @@ args = parser.parse_args()
 
 # load experiment configuration
 experiment = experiment_config(args.config)["experiment"]
-# set up envvironment
-config.enable_debug_mode()
-config.set('execution', 'stop_on_first_crash', 'true')
-config.set('execution', 'remove_unnecessary_outputs', 'true')
-config.set('logging', 'workflow_level', experiment["log_level"])
-config.set('logging', 'interface_level', experiment["log_level"])
-config.set('logging', 'log_to_file', True)
-config.set('logging', 'log_directory', experiment["preproc_log_dir"])
-logging.update_logging(config, mode='a')
+#logging
+logging.getLogger("preproc").setLevel(experiment["log_level"])
+logging.basicConfig(filename=experiment["files_path"]["preproc"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 # set working dirs
 experiment_dir = experiment["files_path"]["root"]
 base_dir = experiment["files_path"]["working_dir"]
 data_dir = experiment["files_path"]["preproc"]["data_path"]
 output_dir = experiment["files_path"]["preproc"]["output"]
-
 
 subject_list=experiment["subjects_id"]
 
@@ -307,8 +301,6 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph.png'))
 # Visualize the detailed graph
 preproc.write_graph(graph2use='flat', format='png', simple_form=True)
 Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
-
-
 
 #preproc.run()
 preproc.run('MultiProc', plugin_args={'n_procs': args.parallelism})

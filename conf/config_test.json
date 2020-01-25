@@ -1,16 +1,24 @@
 {
   "_comment": "Configuration file must be contain all parameters and file paths for the experiment", 
   "experiment": {
-    "preproc_log_dir": "/home/elekin/resultados/log",
-    "log_level": "DEBUG", 
+    "log_level": "DEBUG",
     "subjects_id": [
-		"T012"
+		"T012",
+        "T001",
+        "T005",
+        "T009",
+        "T010",
+        "T034",
+        "T011",
+        "T008",
+        "T002"
     ],
     "files_path": {
       "working_dir": "/home/elekin",
       "preproc": {
         "data_path": "/home/elekin/datos",
         "output": "/home/elekin/results/output",
+        "log": "results/log/preproc.log",
         "_comment": "", 
         "register": {
           "_comment": "", 

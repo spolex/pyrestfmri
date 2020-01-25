@@ -19,7 +19,7 @@ args = parser.parse_args()
 config = experiment_config(args.config)
 experiment = config["experiment"]
 
-logging.getLogger().setLevel(experiment["log_level"])
+logging.getLogger("cbl_extractor").setLevel(experiment["log_level"])
 logging.basicConfig(filename=experiment["files_path"]["cbl_extractor"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 # set up working dir
