@@ -11,7 +11,7 @@ parser.add_argument("-v","--verbose", help="verbose", action='store_true')
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are "
                                                                     "centered and normed: their mean is put to 0 and "
                                                                     "their variance to 1 in the time dimension.")
-parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config.json")
 parser.add_argument("-m",'--maps', help='Use mapsmasker instead of masker', action='store_true')
 args = parser.parse_args()
 
@@ -45,7 +45,7 @@ input_dirs = list(map(lambda session: list(map(lambda subj:op.join(data_dir,subj
 func_filenames = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,ts_image),session), sessions_subjects_dir))
 confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data_dir,subj,cf_file),session), sessions_subjects_dir))
 
-masker = NiftiMapsMasker(maps_img=atlas_filename, memory='nilearn_cache', memory_level=1, detrend=True, verbose=args.verbose, t_r=TR)
+masker = NiftiMapsMasker(maps_img=atlas_filename, memory_level=1, detrend=True, verbose=args.verbose, t_r=TR)
 masker.fit()
 
 for i, (filename, confound) in enumerate(zip(func_filenames, confounds_components)):
