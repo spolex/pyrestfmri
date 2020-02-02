@@ -117,7 +117,7 @@
 		"C578"
     ],
     "files_path": {
-      "working_dir": "/home/elekin",
+      "working_dir": "/home/elekin/pyrestfmri",
       "preproc": {
         "data_path": "/home/elekin/datos",
         "output": "/home/elekin/results/output",

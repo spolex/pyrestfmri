@@ -17,7 +17,7 @@ import numpy as np
 
 parser = argparse.ArgumentParser(description="Functional Brain Atlas extractor tool")
 
-parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_old.json")
+parser.add_argument("-c","--config", type=str, help="Configuration file path", nargs='?', default="conf/config_test.json")
 parser.add_argument("-f","--canica", action="store_true", help="Build CanICA based functional brain atlas. default false")
 parser.add_argument("-d","--dictlearn", action="store_true", help="Build Dictlearn based functional brain atlas. default true")
 parser.add_argument("-n","--n_components", type=int, help="Number of components to build functional networks, default 20", nargs='?', default=20)
@@ -29,25 +29,22 @@ parser.add_argument("-v","--verbose", type=int, help="Default max: 10", nargs='?
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are centered and normed: their mean is put to 0 and their variance to 1 in the time dimension.")
 parser.add_argument("-la","--labeled", action="store_true", help="Select users to build atlas if this parameter is used, users with label 0")
 
-
 args=parser.parse_args()
 
 fwhm = 'none' if args.fwhm is None else str(int(args.fwhm))
 labeled = 0 if args.labeled else 1
 
-logging.debug("Configuration file is "+args.config)
-logging.debug("Smoothing parameter is "+ str(args.fwhm))
-
 # get experiment configuration
-config  =  experiment_config(args.config)
+config=experiment_config(args.config)
 experiment = config["experiment"]
-
 
 logging.getLogger().setLevel(experiment["log_level"])
 logging.basicConfig(filename=experiment["files_path"]["brain_atlas"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
+logging.debug("Configuration file is "+args.config)
+logging.debug("Smoothing parameter is "+ str(args.fwhm))
 
 # set up files' path
-labels = np.array(experiment["labels"])
+labels = np.array(experiment["labels"])#TODO: get labels from txt?
 subject_list = np.array(experiment["subjects_id"])[np.where(labels == labeled)[0]]
 logging.debug("Subject ids: " + str(subject_list))
 
@@ -55,7 +52,6 @@ logging.debug("Subject ids: " + str(subject_list))
 data_dir = experiment["files_path"]["preproc_data_dir"]
 
 #In[]:read components image from file
-
 TR = experiment["t_r"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
 
