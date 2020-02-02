@@ -12,7 +12,7 @@ node{
          }
 
         stage ("Run pyrestfmri container"){
-            img.run('--name pyrestfmri -v ${DATA_PATH}:/home/elekin/datos \
+            img.run('--name ${APP_NAME} -v ${DATA_PATH}:/home/elekin/datos \
             --user 1001:1001 \
             -v ${APP_PATH}:/home/elekin/pyrestfmri \
             -v ${RESULTS}:/home/elekin/results', \

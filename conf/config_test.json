@@ -3,7 +3,7 @@
   "experiment": {
     "log_level": "DEBUG",
     "subjects_id": [
-        "T008",
+        "T008"
     ],
     "files_path": {
       "working_dir": "/home/elekin",
