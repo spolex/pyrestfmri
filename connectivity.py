@@ -1,19 +1,18 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-
 """
-@author: spolex
-
-Functional brain atlas extractor tool, CanICA and DictLearn based (FastICA)
+@author: Iñigo Sanchez Mendez
+Functional connectivity extractor tool, CanICA and DictLearn based (FastICA)
 
 """
 
-# In[]:
+from __future__ import print_function, division, unicode_literals, absolute_import
 from utils import create_dir,flatmap, experiment_config, update_experiment
 import os.path as op
-import argparse
-import logging
 import numpy as np
+from nipype import config
+import logging
+import argparse
 
 parser = argparse.ArgumentParser(description="Functional Brain Atlas extractor tool")
 
@@ -27,25 +26,27 @@ parser.add_argument("-i","--highpass", type=float, help="high pass filter, defau
 parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default none", nargs='?', default=None)
 parser.add_argument("-v","--verbose", type=int, help="Default max: 10", nargs='?', default=10)
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are centered and normed: their mean is put to 0 and their variance to 1 in the time dimension.")
-parser.add_argument("-la","--labeled", action="store_true", help="Select users to build atlas if this parameter is used, users with label 0")
+parser.add_argument("-b","--subjects", type=str, help="File location contains the list of subjects to calculate connectivity", nargs='?',default="conf/et.txt")
 
+print("Functional brain connectivity extraction")
 args=parser.parse_args()
 
 fwhm = 'none' if args.fwhm is None else str(int(args.fwhm))
-labeled = 0 if args.labeled else 1
 
 # get experiment configuration
-config=experiment_config(args.config)
-experiment = config["experiment"]
+local_config=experiment_config(args.config)
+experiment = local_config["experiment"]
 
+# logging config
+config.enable_debug_mode()
 logging.getLogger().setLevel(experiment["log_level"])
 logging.basicConfig(filename=experiment["files_path"]["brain_atlas"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 logging.debug("Configuration file is "+args.config)
 logging.debug("Smoothing parameter is "+ str(args.fwhm))
+logging.debug("Experiment loaded")
 
 # set up files' path
-labels = np.array(experiment["labels"])#TODO: get labels from txt?
-subject_list = np.array(experiment["subjects_id"])[np.where(labels == labeled)[0]]
+subject_list = np.array(experiment["subjects_id"])
 logging.debug("Subject ids: " + str(subject_list))
 
 # set up working dir
@@ -53,7 +54,7 @@ data_dir = experiment["files_path"]["preproc_data_dir"]
 
 #In[]:read components image from file
 TR = experiment["t_r"]
-session_list = [1] # sessions start in 1 TODO allow more than one session
+session_list = [1]
 
 # set up ts file path and name from working_dir
 ts_file = experiment["files_path"]["ts_image"]
@@ -72,8 +73,8 @@ confounds_components = list(flatmap(lambda session: map(lambda subj:op.join(data
 
 # update configuration file used number of components
 experiment["#components"] = args.n_components
-config["experiment"] = experiment
-update_experiment(config, args.config)
+local_config["experiment"] = experiment
+update_experiment(local_config, args.config)
 split = experiment["split"]
 
 # Extract resting-state networks with CanICA
@@ -101,7 +102,7 @@ if(args.canica):
     components_img.to_filename(op.join(data_dir,filename))
     # update configuration file
     experiment["files_path"]["brain_atlas"]["components_img"] = filename
-    config["experiment"] = experiment
+    local_config["experiment"] = experiment
 
     # -----------------------------------------------------------------
     from nilearn.plotting import plot_prob_atlas
@@ -136,7 +137,7 @@ if(args.dictlearn):
     components_img_dic.to_filename(op.join(data_dir, filename))
     # update configuration file
     experiment["files_path"]["brain_atlas"]["components_img_1"] = filename
-    config["experiment"] = experiment
+    local_config["experiment"] = experiment
 
     # Visualization of resting state networks
     # Show networks using plotting utilities
@@ -146,4 +147,4 @@ if(args.dictlearn):
                              title='Dictionary Learning based Brain Atlas',
                              output_file=op.join(dict_dir,fwhm+'_resting_state_all_plot_prob_atlas'))
 
-update_experiment(config,args.config)
+update_experiment(local_config, args.config)

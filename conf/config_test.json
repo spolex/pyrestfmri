@@ -29,7 +29,7 @@
       "ts_image": "applyTransFunc/f1_trim_st_mcf_trans.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
-        "log": "results/log/brain_atlas_extractor.log",
+        "log": "results/log/connectivity.log",
         "components_img": ""
       },
       "cbl_extractor": {
