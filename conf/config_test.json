@@ -1,9 +1,17 @@
 {
-  "_comment": "Configuration file must be contain all parameters and file paths for the experiment", 
+  "_comment": "Configuration file must be contain all parameters and file paths for the experiment",
   "experiment": {
     "log_level": "DEBUG",
     "subjects_id": [
-        "T012", "T001","T005","T009","T010","T034","T011","T008","T002"
+      "T012",
+      "T001",
+      "T005",
+      "T009",
+      "T010",
+      "T034",
+      "T011",
+      "T008",
+      "T002"
     ],
     "files_path": {
       "working_dir": "/home/elekin",
@@ -11,9 +19,9 @@
         "data_path": "/home/elekin/datos",
         "output": "/home/elekin/results/output",
         "log": "results/log/preproc.log",
-        "_comment": "", 
+        "_comment": "",
         "register": {
-          "_comment": "", 
+          "_comment": "",
           "template_3mm": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz",
           "brain_template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz",
           "template": "datos/TEMPLATES/MNI152_T1_1mm.nii.gz"
@@ -21,15 +29,15 @@
         "noise_components": "compcor/noise_components.txt"
       },
       "msdl_ts_file": "msdl/masker_extracted_ts.csv",
-      "_comment": "", 
+      "_comment": "",
       "r_extractor": {
         "log": "results/log/region_extractor.log"
-      }, 
+      },
       "masker_ts_file": "dictmasker_extracted_ts.csv",
       "ts_image": "applyTransFunc/f1_trim_st_mcf_trans.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
-        "log": "results/log/connectivity.log",
+        "log": "results/log/connectivity",
         "components_img": ""
       },
       "cbl_extractor": {
@@ -37,21 +45,21 @@
         "log": "results/log/cbl_extractor.log"
       },
       "entropy": {
-        "_comment": "", 
+        "_comment": "",
         "log": "results/log/entropy_log_dev.log",
         "outdir": "entropy"
-      }, 
+      },
       "ts_file": "results/dict_extracted_ts.csv",
       "root": "/home/results",
       "preproc_data_dir": "/home/elekin/results/output/preproc"
-    }, 
-    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
+    },
+    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths",
     "labels": [
       0
-    ], 
-    "#components": 20, 
-    "split": "et", 
-    "t_r": 1.94, 
+    ],
+    "#components": 20,
+    "split": "et",
+    "t_r": 1.94,
     "#regions": 84
   }
 }

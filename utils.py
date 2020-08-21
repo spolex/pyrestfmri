@@ -38,13 +38,9 @@ def update_experiment(config, filename):
     :param filename:
     :return:
     """
-    try:
-        with open(filename, 'w') as config_file:
-            json.dump(config, config_file, indent=2)
-            return 0
-    except IOError:
-        logging.error(filename + " doesn't exist, an existing file is needed like config file")
-        return -1
+    with open(filename, 'w') as config_file:
+        json.dump(config, config_file, indent=2)
+        return 0
 
 
 def flatmap(f, items):

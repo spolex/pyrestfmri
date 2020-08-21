@@ -37,7 +37,6 @@ args = parser.parse_args()
 # load experiment configuration
 experiment = experiment_config(args.config)["experiment"]
 #logging
-config.enable_debug_mode()
 logging.getLogger("preproc").setLevel(experiment["log_level"])
 logging.basicConfig(filename=experiment["files_path"]["preproc"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 

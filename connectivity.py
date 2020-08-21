@@ -10,9 +10,10 @@ from __future__ import print_function, division, unicode_literals, absolute_impo
 from utils import create_dir,flatmap, experiment_config, update_experiment
 import os.path as op
 import numpy as np
-from nipype import config
-import logging
+from nipype import config, logging as nl
 import argparse
+import os
+import logging
 
 parser = argparse.ArgumentParser(description="Functional Brain Atlas extractor tool")
 
@@ -20,16 +21,15 @@ parser.add_argument("-c","--config", type=str, help="Configuration file path", n
 parser.add_argument("-f","--canica", action="store_true", help="Build CanICA based functional brain atlas. default false")
 parser.add_argument("-d","--dictlearn", action="store_true", help="Build Dictlearn based functional brain atlas. default true")
 parser.add_argument("-n","--n_components", type=int, help="Number of components to build functional networks, default 20", nargs='?', default=20)
-parser.add_argument("-j","--n_jobs", type=int, help="Parallelism degree, default all CPUs except one (-2)", nargs='?', default=-2)
+parser.add_argument("-j","--n_jobs", type=int, help="Parallelism degree, default all CPUs except one (-2)", nargs='?', default=1)
 parser.add_argument("-s","--fwhm", type=float, help="Smooth threshold, default None", nargs='?', default=None)
 parser.add_argument("-i","--highpass", type=float, help="high pass filter, default none", nargs='?', default=None)
 parser.add_argument("-l","--lowpass", type=float, help="low pass filter, default none", nargs='?', default=None)
-parser.add_argument("-v","--verbose", type=int, help="Default max: 10", nargs='?', default=10)
+parser.add_argument("-v","--verbose", type=int, help="Default max: 10", nargs='?', default=1)
 parser.add_argument("-e", "--standarize", action="store_true", help="If standardize is True, the time-series are centered and normed: their mean is put to 0 and their variance to 1 in the time dimension.")
 parser.add_argument("-b","--subjects", type=str, help="File location contains the list of subjects to calculate connectivity", nargs='?',default="conf/et.txt")
 
-print("Functional brain connectivity extraction")
-args=parser.parse_args()
+args = parser.parse_args()
 
 fwhm = 'none' if args.fwhm is None else str(int(args.fwhm))
 
@@ -38,16 +38,33 @@ local_config=experiment_config(args.config)
 experiment = local_config["experiment"]
 
 # logging config
+
+#logging
+log_dir = experiment["files_path"]["brain_atlas"]["log"]
+log_level = experiment["log_level"]
+msg_format ="%(asctime)s - %(levelname)s - %(process)s - {%(pathname)s:%(lineno)d}- %(message)s"
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
 config.enable_debug_mode()
-logging.getLogger().setLevel(experiment["log_level"])
-logging.basicConfig(filename=experiment["files_path"]["brain_atlas"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
-logging.debug("Configuration file is "+args.config)
-logging.debug("Smoothing parameter is "+ str(args.fwhm))
-logging.debug("Experiment loaded")
+config.set_log_dir(log_dir)
+config.update_config({'logging': {'log_directory': log_dir,
+                                  'log_to_file': True}})
+nl.update_logging(config)
+
+logging.basicConfig(filename=log_dir+'/main.log', filemode ='w', format=msg_format)
+logger = logging.getLogger(__name__)
+logger.setLevel(log_level)
+
+
+logger.info("Functional brain connectivity extraction")
+logger.debug("Configuration file is "+args.config)
+logger.debug("Smoothing parameter is "+str(args.fwhm))
+logger.debug("Experiment loaded")
 
 # set up files' path
-subject_list = np.array(experiment["subjects_id"])
-logging.debug("Subject ids: " + str(subject_list))
+subject_list = np.genfromtxt(args.subjects,dtype="str",skip_header=1)
+logger.debug("Subject ids: " + str(subject_list))
 
 # set up working dir
 data_dir = experiment["files_path"]["preproc_data_dir"]
@@ -60,7 +77,7 @@ session_list = [1]
 ts_file = experiment["files_path"]["ts_image"]
 ts_filename = ts_file.split("/")
 ts_filename = ts_filename[0]
-logging.info("Timeseries files path: "+ts_file)
+logger.info("Timeseries files path: "+ts_file)
 cf_file = experiment["files_path"]["preproc"]["noise_components"]
 
 #set up data dirs
@@ -83,10 +100,9 @@ split = experiment["split"]
 if(args.canica):
     from nilearn.decomposition import CanICA
 
-
+    logger.info("Canica algorithm starting...")
     canica = CanICA(n_components=args.n_components, smoothing_fwhm=args.fwhm,
-                   memory="nilearn_cache", memory_level=2,
-                   threshold=3., verbose=args.verbose, random_state=0,
+                   memory_level=2, threshold=3., verbose=args.verbose, random_state=0,
                    n_jobs=args.n_jobs, t_r=TR, standardize=args.standarize,
                    high_pass=args.highpass, low_pass=args.lowpass)
     canica.fit(func_filenames, confounds=confounds_components)
@@ -118,11 +134,12 @@ if(args.dictlearn):
     # Import dictionary learning algorithm from decomposition module and call the
     # object and fit the model to the functional datasets
     from nilearn.decomposition import DictLearning
+    logger.info("Dict Learning algorithm starting...")
+
 
     # Initialize DictLearning object
     dict_learn = DictLearning(n_components=args.n_components, verbose=args.verbose,
-                              smoothing_fwhm=args.fwhm, t_r=TR, alpha=10,
-                              memory="nilearn_cache", memory_level=2,
+                              smoothing_fwhm=args.fwhm, t_r=TR, alpha=10, memory_level=2,
                               random_state=0, n_jobs=args.n_jobs, standardize=args.standarize,
                               high_pass=args.highpass, low_pass=args.lowpass)
     # Fit to the data
