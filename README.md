@@ -10,26 +10,21 @@ Based on:
 
 ## Preprocess pipeline
 nipype, fsl, ants, nipy, custom
-DONE
 
 ## Brain Atlas computation
 nilearn: CanICA & Dictlearn; FastIca based
-DONE
 
 ## Information theory based analysis
 IN PROGRESS
 
 ## PSD calculation
 nitime
-DONE
 
 ## SSE calculation
 ad-hoc
-DONE
 
 ## Permutation Entropy
 ad-hoc
-IN PROGRESS
 
 ## Plot and save results
 matplotlib, nilearn and numpy
@@ -42,7 +37,7 @@ matplotlib, nilearn and numpy
 READY
 
 ### Dependencies and versions
-- python 2.7
+- python 3.6
 - numpy
 - nipype
 - nilearn
