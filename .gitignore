@@ -26,3 +26,5 @@ notebooks/data
 *.ipynb_checkpoints*
 results/
 notebooks/*.nii.gz
+notebooks/fmri/
+notebooks/Untitled.*
