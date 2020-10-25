@@ -1,99 +1,65 @@
 {
-  "_comment": "Configuration file must be contain all parameters and file paths for the experiment", 
+  "_comment": "Configuration file must be contain all parameters and file paths for the experiment",
   "experiment": {
-    "preproc_log_dir": "/home/elekin/results/log",
-    "log_level": "DEBUG", 
+    "log_level": "DEBUG",
     "subjects_id": [
-      "C021",
-      "C024",
-      "C026",
-      "C034",
-      "C045",
-	  "C046",
-      "C048",
-      "C049",
-      "C070",
-      "C079",
-      "C084",
-      "C093",
-      "C109",
-      "C112",
-      "C113",
-      "C115",
-      "C127",
-      "C132",
-      "C143",
-      "C180",
-      "C182",
-      "C185",
-      "C192",
-      "C196",
-      "C203",
-      "C212",
-      "C221",
-      "C231",
-      "C234",
-      "C257",
-      "C260",
-      "C266",
-      "C275",
-      "C280",
-      "C282",
-      "C283",
-      "C294",
-      "C367",
-      "C374",
-      "C382",
-      "C452",
-      "C478",
-      "C503",
-      "C522",
-      "C528",
-      "C534",
-      "C575",
-      "C578"
-    ], 
+      "T012",
+      "T001",
+      "T005",
+      "T009",
+      "T010",
+      "T034",
+      "T011",
+      "T008",
+      "T002"
+    ],
     "files_path": {
       "working_dir": "/home/elekin",
       "preproc": {
         "data_path": "/home/elekin/datos",
         "output": "/home/elekin/results/output",
-        "_comment": "", 
+        "log": "results/log/preproc.log",
+        "_comment": "",
         "register": {
-          "_comment": "", 
-          "template_3mm": "datos/TEMPLATES/MNI152_T1_3mm_brain.nii.gz",
-          "template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz"
+          "_comment": "",
+          "template_3mm": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz",
+          "brain_template": "datos/TEMPLATES/MNI152_T1_1mm_brain.nii.gz",
+          "template": "datos/TEMPLATES/MNI152_T1_1mm.nii.gz"
         },
-        "noise_components": "results/compcor/noise_components.txt"
-      }, 
-      "msdl_ts_file": "results/msdl/masker_extracted_ts.csv",
-      "_comment": "", 
+        "noise_components": "compcor/noise_components.txt"
+      },
+      "msdl_ts_file": "msdl/masker_extracted_ts.csv",
+      "_comment": "",
       "r_extractor": {
-        "log": "results/log/region_extractor_dev.log"
-      }, 
-      "masker_ts_file": "results/dictmasker_extracted_ts.csv",
-      "ts_image": "results/remove_noise/detrend_regfilt.nii.gz",
+        "log": "results/log/region_extractor.log"
+      },
+      "masker_ts_file": "dictmasker_extracted_ts.csv",
+      "ts_image": "applyTransFunc/f1_trim_st_mcf_trans.nii.gz",
       "brain_atlas": {
         "components_img_1": "",
-        "log": "results/log/brain_atlas_extractor_dev.log",
+        "log": "results/log/connectivity",
         "components_img": ""
-      }, 
+      },
+      "cbl_extractor": {
+        "cbl_atlas": "/home/elekin/datos/TEMPLATES/Cerebellum-MNIfnirt-prob-2mm.nii.gz",
+        "log": "results/log/cbl_extractor.log"
+      },
       "entropy": {
-        "_comment": "", 
+        "_comment": "",
         "log": "results/log/entropy_log_dev.log",
         "outdir": "entropy"
-      }, 
+      },
       "ts_file": "results/dict_extracted_ts.csv",
       "root": "/home/results",
-      "preproc_data_dir": "/home/results/output/preproc"
-    }, 
-    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths", 
+      "preproc_data_dir": "/home/elekin/results/output/preproc"
+    },
+    "_comment": "Experiment root contains log level, sample ratio (t_r), number of regions, subjects id and nedded directory paths",
     "labels": [
       0
-    ], 
-    "#components": 20, 
-    "split": "et", 
-    "t_r": 1.94, 
+    ],
+    "#components": 20,
+    "split": "et",
+    "t_r": 1.94,
     "#regions": 84
   }
 }

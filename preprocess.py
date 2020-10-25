@@ -17,8 +17,9 @@ from nipype.pipeline.engine import Workflow, Node
 from nipype.interfaces.utility import Function,IdentityInterface, Merge
 from nipype.interfaces.ants import ApplyTransforms
 import argparse
-from nipype import config, logging
 from utils import experiment_config
+import logging
+from nipype import config
 
 # set up argparser
 parser = argparse.ArgumentParser(description="Rest fmri preprocess pipeline")
@@ -35,22 +36,15 @@ args = parser.parse_args()
 
 # load experiment configuration
 experiment = experiment_config(args.config)["experiment"]
-# set up envvironment
-config.enable_debug_mode()
-config.set('execution', 'stop_on_first_crash', 'true')
-config.set('execution', 'remove_unnecessary_outputs', 'true')
-config.set('logging', 'workflow_level', experiment["log_level"])
-config.set('logging', 'interface_level', experiment["log_level"])
-config.set('logging', 'log_to_file', True)
-config.set('logging', 'log_directory', experiment["preproc_log_dir"])
-logging.update_logging(config)
+#logging
+logging.getLogger("preproc").setLevel(experiment["log_level"])
+logging.basicConfig(filename=experiment["files_path"]["preproc"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
 # set working dirs
 experiment_dir = experiment["files_path"]["root"]
 base_dir = experiment["files_path"]["working_dir"]
 data_dir = experiment["files_path"]["preproc"]["data_path"]
 output_dir = experiment["files_path"]["preproc"]["output"]
-
 
 subject_list=experiment["subjects_id"]
 
@@ -107,15 +101,20 @@ substitutions.extend(subjFolders)
 datasink.inputs.substitutions = substitutions
 
 # Select number of volumes
-trim = Node(interface=Trim(),output_type='NIFTI_GZ',name='select_volumes')
+trim = Node(interface=Trim(), output_type='NIFTI_GZ',name='select_volumes')
 trim.inputs.begin_index=3 # remove first 3 volume
 trim.inputs.end_index=161 # get only until volume 162
+
+# Neck remover:
+fov = Node(interface=fsl.RobustFOV(), name='Neck_remover', iterfield=['in_file'])
+
+# Normalize to MNI:
+flt = Node(fsl.FLIRT(bins=640, cost_func='mutualinfo'), name="Normalize", iterfield=['in_file'])
 
 # Brain extraction, robust:
 bet = Node(interface=BET(), name='skull_strip', iterfield=['in_file'])
 bet.inputs.frac = 0.4
 bet.inputs.robust = True
-
 
 # Slice Timing correction
 slice_timing_correction = Node(SliceTimer(time_repetition=TR), name="slice_timer")
@@ -181,7 +180,7 @@ reg.inputs.sigma_units = ['vox'] * 2
 reg.inputs.shrink_factors = [[2,1], [3,2,1]]
 reg.inputs.use_estimate_learning_rate_once = [True] * 2
 reg.inputs.use_histogram_matching = [True] * 2
-reg.inputs.verbose = True
+reg.inputs.verbose = False
 
  # combine transforms
 merge = Node(Merge(2), iterfield=['in2'], name='mergexfm')
@@ -227,7 +226,7 @@ smooth.inputs.brightness_threshold = brightness_threshold
 
 # Infosource - a function free node to iterate over the list of subject names
 # fetch input
-infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Template','Template_3mm']),
+infosource = Node(IdentityInterface(fields=['subject_id', 'session_id', 'Brain_template','Template','Template_3mm']),
                   name="infosource")
 infosource.iterables = [('subject_id', subject_list),
                         ('session_id', session_list)]
@@ -241,7 +240,10 @@ preproc.base_dir = output_dir
 # Connect all components of the preprocessing workflow
 preproc.connect(infosource, 'subject_id', selectfiles, 'subject_id' )
 preproc.connect(selectfiles, 'func', trim, 'in_file')
-preproc.connect(selectfiles, 'anat', bet, 'in_file')
+preproc.connect(selectfiles, 'anat', fov, 'in_file')
+preproc.connect(fov, 'out_roi', flt, 'in_file')
+preproc.connect(infosource, 'Template', flt, 'reference')
+preproc.connect(flt, 'out_file', bet, 'in_file')
 preproc.connect(trim, 'out_file', slice_timing_correction, 'in_file')
 preproc.connect(slice_timing_correction, 'slice_time_corrected_file', mcflirt, 'in_file')
 if(args.move_plot):preproc.connect(mcflirt, 'par_file', plotter, 'in_file')
@@ -250,15 +252,14 @@ preproc.connect(bet, 'out_file', coreg, 'fixed_image')
 preproc.connect(mcflirt, 'mean_img', coreg, 'moving_image')
 #anat2standard
 preproc.connect(bet, 'out_file', reg, 'moving_image')
-preproc.connect(infosource, 'Template', reg, 'fixed_image')
+preproc.connect(infosource, 'Brain_template', reg, 'fixed_image')
 # get transform of functional image to template and apply it to the functional 
 #images to template_3mm (same space as     
 # template)
 preproc.connect(infosource, 'Template_3mm', applyTransFunc, 'reference_image')
 preproc.connect(mcflirt,'out_file', applyTransFunc, 'input_image')
-
 preproc.connect(coreg, 'composite_transform', merge, 'in1')
-preproc.connect(reg, 'composite_transform', merge, 'in2')  
+preproc.connect(reg, 'composite_transform', merge, 'in2')
 preproc.connect(merge, 'out', applyTransFunc, 'transforms')
 #artifact detection
 preproc.connect(applyTransFunc, 'output_image', tsnr, 'in_file')
@@ -285,6 +286,7 @@ if(args.move_plot):preproc.connect(plotter, 'out_file', datasink, 'preproc.@moti
 
 #set up templates to register
 preproc.inputs.infosource.Template = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template"])
+preproc.inputs.infosource.Brain_template = opj(base_dir,experiment["files_path"]["preproc"]["register"]["brain_template"])
 preproc.inputs.infosource.Template_3mm = opj(base_dir,experiment["files_path"]["preproc"]["register"]["template_3mm"])
 
 # visualizamos el workfow
@@ -300,7 +302,5 @@ Image(filename=opj(preproc.base_dir, 'preproc', 'graph.png'))
 preproc.write_graph(graph2use='flat', format='png', simple_form=True)
 Image(filename=opj(preproc.base_dir, 'preproc', 'graph_detailed.png'))
 
-
-
 #preproc.run()
-preproc.run('MultiProc', plugin_args={'n_procs': args.parallelism})
+preproc.run('MultiProc', plugin_args={'n_procs': 2})

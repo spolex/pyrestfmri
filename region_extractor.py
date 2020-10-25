@@ -1,9 +1,6 @@
 # In[]:
 from utils import create_dir,flatmap,experiment_config, update_experiment,plot,plot_connectcome,plot_extracted
-
-#import nilearn modules
 from nilearn.connectome import ConnectivityMeasure
-
 from os import path as op
 import os
 import logging
@@ -37,8 +34,6 @@ config = experiment_config(args.config)
 experiment = config["experiment"]
 labeled = 0 if args.zero else 1
 
-
-
 logging.getLogger().setLevel(experiment["log_level"])
 logging.basicConfig(filename=experiment["files_path"]["r_extractor"]["log"], filemode ='w', format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -50,9 +45,7 @@ logging.debug("Subject ids: " + str(subject_list))
 # set up working dir
 data_dir = experiment["files_path"]["preproc_data_dir"]
 
-
 #In[]:read components image from file
-
 TR = experiment["t_r"]
 session_list = [1] # sessions start in 1 TODO allow more than one session
 
@@ -89,10 +82,6 @@ extractor = RegionExtractor(components_img, verbose=args.verbose, thresholding_s
                             extractor='local_regions', memory="nilearn_cache", memory_level=2,
                             t_r=TR, high_pass=args.highpass, low_pass=args.lowpass, standardize=args.standarize,
                             min_region_size=args.region_size)
-#
-#extractor =  NiftiMapsMasker(low_pass=args.lowpass, high_pass=args.highpass, t_r=TR,
-#                           maps_img=components_img, standardize=args.standarize,
-#                           memory='nilearn_cache', verbose=args.verbose, smoothing_fwhm=args.fwhm)
 extractor.fit()
 
 # Extracted regions are stored in regions_img_
@@ -128,7 +117,7 @@ connectome_measure = ConnectivityMeasure(kind='correlation')
 for filename,confound in zip(func_filenames, confounds_components):
   # call transform from RegionExtractor object to extract timeseries signals
   timeseries_each_subject = extractor.transform(filename, confounds=confound)
-  np.savetxt(filename+"_extracted_ts.csv",timeseries_each_subject, delimiter=",")
+  np.savetxt(filename+"_extracted_ts.csv", timeseries_each_subject, delimiter=",")
   fig = plt.figure()
   plt.plot(timeseries_each_subject)
   plt.xlabel('')
