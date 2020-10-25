@@ -7,7 +7,7 @@ Functional connectivity extractor tool, CanICA and DictLearn based (FastICA)
 """
 
 from __future__ import print_function, division, unicode_literals, absolute_import
-from utils import create_dir,flatmap, experiment_config, update_experiment
+from commons.viz import create_dir,flatmap, experiment_config, update_experiment
 import os.path as op
 import numpy as np
 from nipype import config, logging as nl

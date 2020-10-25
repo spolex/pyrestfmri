@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # In[]:
-from utils import flatmap,create_dir,experiment_config
+from commons.viz import flatmap,create_dir,experiment_config
 from os import path as op
 import numpy as np
 from entropy import f_psd, ssH, f_density, p_entropy, plotAndSavePSD, plotAndSaveEntropy, plotAndSavePermEntropy

@@ -1,5 +1,5 @@
 # In[]:
-from utils import create_dir,flatmap,experiment_config, update_experiment,plot,plot_connectcome,plot_extracted
+from commons.viz import create_dir,flatmap,experiment_config, update_experiment,plot,plot_connectcome,plot_extracted
 from nilearn.connectome import ConnectivityMeasure
 from os import path as op
 import os

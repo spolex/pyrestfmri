@@ -1,4 +1,4 @@
-from utils import flatmap,experiment_config
+from commons.viz import flatmap,experiment_config
 import argparse
 from nilearn.input_data import NiftiMapsMasker
 import logging
