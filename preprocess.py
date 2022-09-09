@@ -19,7 +19,7 @@ from nipype.interfaces.utility import Function, IdentityInterface, Merge
 from nipype.interfaces.ants import ApplyTransforms
 import argparse
 
-from commons.utils import experiment_config, get_dirs
+from commons.viz import experiment_config
 
 from logger import logging
 
